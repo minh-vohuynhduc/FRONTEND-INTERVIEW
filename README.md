@@ -63,6 +63,11 @@ The question bank uses precise technical vocabulary. With a junior candidate, yo
 
 Open the board via the local server at **http://localhost:3001/interview-board.html**.
 
+UI sample
+
+<img width="1903" height="1110" alt="image" src="https://github.com/user-attachments/assets/2e1bf63e-a8b2-4f22-92dc-a7d3d280b4e2" />
+
+
 The board lets you:
 
 - **Browse all 150+ questions** grouped by category with level indicators.
