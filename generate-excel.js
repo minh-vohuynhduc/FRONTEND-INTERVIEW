@@ -110,843 +110,184 @@ const figmaResources = [
 // No colons as label separators. Use period or comma instead.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// AUTO-GENERATED-GROUPS-START
 const groups = [
-
-// ─── GROUP 1 ─────────────────────────────────────────────────────────────────
-{
-  id: 1, name: 'Rendering and Basic Display', level: 'Junior',
-  questions: [
-    {
-      q: 'You need to display 100 records from an API in a table. Where do you put the data-fetching logic, inside the component or somewhere else, and why?',
-      k: 'A service or data layer owns fetching. The component owns display only. This follows Single Responsibility. The service becomes independently testable without a DOM.',
-      r: 'Says "just put it in the component, it is simpler". Cannot explain why separation matters for maintainability.'
-    },
-    {
-      q: 'The API takes 3 seconds to respond. What should the user see during that wait, and how do you implement it?',
-      k: 'Three explicit states must exist. Loading with a spinner or skeleton rows, success with data, and error with a message and retry option. A skeleton grid matches the expected table shape and feels faster than a generic spinner.',
-      r: 'Only mentions a spinner without considering error or empty states. Does not think about perceived performance.'
-    },
-    {
-      q: 'The API returns an empty array. Should you show nothing, "No data found", or a designed empty state? How do you decide?',
-      k: 'Always show a meaningful empty state. Distinguish two cases. "No records exist at all" needs a call-to-action like an "Add" button. "No results match this filter" needs a "Clear filters" button. Never show a blank white space.',
-      r: 'Says "just hide the table". Does not distinguish filter-empty from truly-empty scenarios.'
-    },
-    {
-      q: 'A date column shows "2024-01-05T10:30:00Z" from the API. Where and how do you format it for display?',
-      k: 'In a pure, reusable transformation function such as a pipe or utility formatter. Never format inline in the template. Must be locale-aware and timezone-aware. Can be unit-tested independently.',
-      r: 'Formats directly in the template with string operations. Does not think about locale or timezone differences.'
-    },
-    {
-      q: 'Your table has 8 columns but on a mobile screen only 3 can fit. How do you approach this?',
-      k: 'Define column priority with the designer. Hide lower-priority columns at breakpoints via CSS media queries. Options include horizontal scroll within the container, a responsive card layout on mobile, or a column toggle menu. Never just zoom out.',
-      r: 'Says "just scroll horizontally" without any discussion of column priority or user experience trade-offs.'
-    },
-    {
-      q: 'A row has a "Delete" button. The user clicks it. Walk me through what should happen before, during, and after the delete.',
-      k: 'Before. Show a confirmation dialog because this is a destructive action. During. Disable the button and show a loading indicator. After success. Remove the row, show a success toast, and move keyboard focus to the next row. After error. Restore the row, show an error message, and allow retry.',
-      r: 'Deletes immediately without confirmation. Does not handle loading or error states. Does not think about focus management.'
-    },
-    {
-      q: 'How would you implement a "Status" column that shows colored badges like green for Active, red for Inactive, and grey for Draft?',
-      k: 'Map the status string to a CSS class or design token using a lookup object. The badge component receives the status as input and derives its own color. Never hardcode hex colors inside the table component.',
-      r: 'Uses inline styles with hardcoded hex colors. Duplicates badge logic in every table that needs it.'
-    },
-    {
-      q: 'What is the difference between "rendering" and "painting" in the browser? Why should a frontend developer care about this distinction?',
-      k: 'Rendering builds the layout. The browser calculates the position and size of every element. Painting fills pixels with colors, shadows, and borders. Compositing assembles GPU layers. Developers care because triggering layout ("reflow") is the most expensive step. Changing only opacity or transform skips layout and paint entirely.',
-      r: 'Thinks rendering and painting are the same thing. Cannot explain why some CSS properties are cheaper than others.'
-    },
-    {
-      q: 'What is the difference between "display none" and "visibility hidden" in terms of how the browser renders the element?',
-      k: '"display none" removes the element from the document flow entirely. The browser does not reserve space for it. "visibility hidden" keeps the space reserved but makes the element invisible. A third option, "opacity 0", keeps space and allows pointer events. Each has different layout, interaction, and accessibility implications.',
-      r: 'Thinks both options are equivalent. Cannot explain the space reservation difference.'
-    },
-    {
-      q: 'Your table row has 10 nested components. A parent state update causes all 10 to re-render even though only 1 changed. What is the root problem and what are the solutions?',
-      k: 'The framework re-renders all children by default because it cannot know which one changed. Solutions include memoization at the component level, passing only the props each child needs instead of the whole row object, and using fine-grained reactivity signals so only the affected signal subscriber re-renders.',
-      r: 'Accepts that all 10 re-render as normal behavior. Does not know about memoization or granular reactivity.'
-    },
-    {
-      q: 'What is the difference between server-side rendering, client-side rendering, and static site generation? When would you choose each for a data table?',
-      k: 'SSR renders HTML on the server for each request. Good for SEO and fast first paint but adds server load. CSR ships an empty shell and builds the DOM in the browser. Good for interactive apps with no SEO requirement. SSG pre-builds HTML at build time. Good for tables showing mostly static reference data. A data table with real-time user data is almost always CSR or SSR with client hydration.',
-      r: 'Only knows one approach. Cannot explain the trade-offs between them.'
-    },
-    {
-      q: 'What is "layout shift" and how can a table cause it? How do you prevent it?',
-      k: 'Layout shift happens when an element changes size or position after the initial paint, pushing other content around. A table causes it when column widths are not defined upfront and the browser recalculates widths after data loads. Prevention includes setting explicit column widths, using table-layout fixed, or reserving the table height during loading with a skeleton of the same dimensions.',
-      r: 'Does not know what layout shift is. Cannot name the CLS metric. Does not think about column width stability.'
-    },
-    {
-      q: 'Explain event delegation. Give a concrete example of how it applies to a table with 1000 clickable rows.',
-      k: 'Instead of attaching a click listener to each of the 1000 row elements, attach one listener to the table parent. When a row is clicked, the event bubbles up to the parent listener. Use event.target to identify which row was clicked. This means 1 listener instead of 1000, which is dramatically better for memory and for dynamically added rows.',
-      r: 'Attaches a listener to every row. Cannot explain how event bubbling makes the single-listener approach work.'
-    },
-    {
-      q: 'What is a Web Component? How does it relate to a table cell component you build in React, Vue, or Angular?',
-      k: 'A Web Component is a browser-native custom element using Custom Elements API, Shadow DOM, and HTML Templates. It works in any framework or no framework. Framework components compile down to framework-specific virtual DOM calls and only work within that framework. Web Components are relevant for design systems and micro-frontend scenarios where components must be consumed across different frameworks.',
-      r: 'Thinks Web Components are just another name for framework components. Cannot explain Shadow DOM isolation.'
-    },
-    {
-      q: 'A junior developer added a console.log inside a render function and it prints 200 times per second. What is happening and what does it tell you about your component architecture?',
-      k: 'The component is re-rendering far too often. This reveals a state or prop reference instability problem. Common causes include creating new object or array literals inside render, not memoizing callback functions, or a parent re-rendering on every frame and passing new object references down. This is a serious performance bug disguised as a logging issue.',
-      r: 'Says "just remove the console.log". Does not investigate why the component re-renders so frequently.'
-    },
-    {
-      q: 'What is the difference between "controlled" and "uncontrolled" components in the context of a search input above your table?',
-      k: 'Controlled means the component state lives in your code. You own the value and onChange handler. Every keystroke flows through your state. Uncontrolled means the DOM owns the value and you read it via a ref when needed. Controlled is the standard choice for a filter input because it lets you debounce, validate, and sync to URL params. Uncontrolled is simpler for fire-and-forget file upload inputs.',
-      r: 'Only knows controlled components. Cannot explain why uncontrolled components exist or when they are appropriate.'
-    }
-  ]
-},
-
-// ─── GROUP 2 ─────────────────────────────────────────────────────────────────
-{
-  id: 2, name: 'Sorting and Filtering', level: 'Junior to Mid',
-  questions: [
-    {
-      q: 'User clicks a column header to sort. Should you sort client-side or server-side? What factors influence this decision?',
-      k: 'Client-side works for small datasets where all data is already loaded and instant feedback matters. Server-side is needed for large datasets with partial loads and complex multi-column sort. Never assume one answer. It depends on data volume and API design.',
-      r: 'Gives only one answer without mentioning the trade-off. Does not ask about dataset size.'
-    },
-    {
-      q: 'User types in a filter box and you call the API on each keystroke. What problem does this cause and how do you fix it?',
-      k: 'Too many API calls causes both performance waste and potential cost. Fix with debounce at 300 to 500 milliseconds. Also cancel the previous in-flight request when a new one starts using switchMap or AbortController. Debounce reduces call frequency but does not cancel already-running requests.',
-      r: 'Only mentions debounce without cancelling in-flight requests. Confuses debounce with throttle.'
-    },
-    {
-      q: 'User applies 3 filters, sorts a column, goes to page 5, then refreshes the browser. What happens and should it happen?',
-      k: 'Without persistence, all state is lost and the view resets to defaults. The best option for tables is URL query parameters because the state is bookmarkable, shareable, and survives refresh. SessionStorage works for session-only persistence. A store loses state on refresh.',
-      r: 'Accepts that state resets on refresh as fine without exploring persistence options.'
-    },
-    {
-      q: 'A search input filters across firstName, lastName, and email simultaneously on the client. How do you implement this without performance issues?',
-      k: 'Write one composed predicate function. Pre-process the search term once by lowercasing and trimming it. Check all three fields in a single pass per row. Memoize the filtered result when the input has not changed. Do not run three separate filter passes.',
-      r: 'Three separate filter passes. Recomputes on every render cycle without memoization.'
-    },
-    {
-      q: 'A "Reset Filters" button should restore all filters to their defaults. How do you manage this state cleanly?',
-      k: 'Define a DEFAULT_FILTER_STATE constant object at module level. On reset, spread or clone the default into the current state. Never mutate the original constant. This enables a clean dirty-check by comparing current state to the default.',
-      r: 'Mutates the default object. Uses null-checks scattered throughout instead of a single reset to a known good state.'
-    },
-    {
-      q: 'You implement multi-column sorting so rows are sorted by Status first, then by Name within the same status. How do you represent and apply this state?',
-      k: 'Use an array of sort descriptors. Each descriptor has a column name and a direction. The order of items in the array determines sort priority. Apply them in sequence using a composed comparator. The UI shows numbered indicators on column headers to communicate priority.',
-      r: 'Only handles single-column sort. Cannot explain how to represent priority between multiple sort columns.'
-    },
-    {
-      q: 'Your filter state and sort state are separate. When either changes, the table must reload. How do you combine them into a single API call without race conditions?',
-      k: 'Derive a single composed parameter object from all filter and sort state. React to any change in that derived object using a single effect or subscription. Use a cancel-and-replace strategy like switchMap so that a rapid sequence of changes results in only the last call completing.',
-      r: 'Separate watchers for filter and sort each trigger their own API calls independently, causing race conditions and double requests.'
-    },
-    {
-      q: 'What is the difference between debounce and throttle? Give one concrete example of each in a table scenario.',
-      k: 'Debounce delays execution until the input has been idle for a given duration. Used for a search box because you want to wait until the user stops typing. Throttle limits execution to at most once per time window regardless of how many triggers occur. Used for a scroll event listener during infinite scroll to avoid firing on every pixel change.',
-      r: 'Treats them as synonyms. Cannot give distinct examples for each.'
-    },
-    {
-      q: 'A filter dropdown has 500 options. Rendering all 500 as DOM elements causes the dropdown to feel sluggish. What are your options?',
-      k: 'Virtualize the dropdown list using the same virtual scroll technique as a table. Only render visible options. Alternatively use a searchable combobox where options are loaded on demand as the user types. For static lists that rarely change, pre-filter and limit the initial render to the top 20.',
-      r: 'Renders all 500 options without any optimization. Does not think about DOM cost of a large option list.'
-    },
-    {
-      q: 'How would you implement a "saved search" feature where users can save their current filter and sort configuration and recall it later?',
-      k: 'Serialize the filter and sort state to JSON. Store it in localStorage keyed by a user-chosen name. On load, present a dropdown of saved searches. When selected, deserialize and apply the state. Consider versioning the schema so that old saved searches remain compatible after a UI update.',
-      r: 'Cannot describe a serialization approach. Does not think about schema versioning for stored state.'
-    },
-    {
-      q: 'What is the "derived state" anti-pattern in the context of filter state? Give an example.',
-      k: 'Derived state anti-pattern means storing a value that can be computed from existing state and keeping it in sync manually. Example. Storing "filteredRows" in state separately from "allRows" and "filterConfig". When filter config changes, you must remember to also update filteredRows. The correct approach is to compute filteredRows dynamically from allRows and filterConfig.',
-      r: 'Cannot name the anti-pattern. Thinks storing computed values in state is normal and necessary.'
-    },
-    {
-      q: 'A column header that is sortable needs visual indicators for sorted ascending, sorted descending, and unsorted. How do you implement this accessibly, beyond just changing an icon?',
-      k: 'Add aria-sort attribute to the th element. Set it to "ascending", "descending", or "none". Screen readers announce this as part of the column header. The sort icon is visual reinforcement only. When sort changes, an aria-live region announces the new sort state to screen reader users who may not see the icon change.',
-      r: 'Only changes a CSS icon. Does not add aria-sort. Does not consider screen reader users.'
-    },
-    {
-      q: 'Your product manager wants a "smart search" that searches across all columns at once when the user types in one box. What are the implementation challenges?',
-      k: 'Client-side. Must build an efficient multi-field matcher that is case-insensitive and handles partial matches. Highlight matched text in results. Debounce and cancel requests. Server-side. Requires a full-text search index on the backend. Relevance scoring becomes important. The main design challenge is communicating to users which fields are being searched.',
-      r: 'Only considers implementation, not the user experience challenge of communicating what was searched across and why a result appeared.'
-    },
-    {
-      q: 'How do you test that your filter logic produces the correct subset of rows without going through a UI or API?',
-      k: 'Extract the filter logic into a pure function that takes rows and filter config as inputs and returns filtered rows as output. Write unit tests against this function with various input combinations. This approach is fast, deterministic, and does not require any component mounting or HTTP mocking.',
-      r: 'Only tests through the UI by rendering the component. Cannot explain how to test the pure logic layer independently.'
-    },
-    {
-      q: 'A user types a search term. The first result appears but is clearly wrong, and a moment later the correct result appears and replaces it. What caused this and how do you fix it?',
-      k: 'This is a race condition. Two API calls were in flight simultaneously and the older one (for a shorter query) resolved after the newer one (for the longer query). Fix by cancelling the previous request before starting a new one. Using switchMap in RxJS or AbortController with fetch handles this correctly.',
-      r: 'Accepts the flickering result as an API timing issue with no fix. Does not understand request cancellation.'
-    }
-  ]
-},
-
-// ─── GROUP 3 ─────────────────────────────────────────────────────────────────
-{
-  id: 3, name: 'Pagination', level: 'Mid',
-  questions: [
-    {
-      q: 'What is the difference between offset-based and cursor-based pagination? When would you choose each?',
-      k: 'Offset uses page number and page size. Simple to implement but can skip or duplicate rows when data changes between page navigations. Cursor uses a stable pointer to the last seen item. No gaps in real-time data. Choose offset for admin tables with mostly static data, cursor for real-time feeds and infinite scroll.',
-      r: 'Only knows offset pagination. Cannot explain why cursor pagination exists.'
-    },
-    {
-      q: 'User is on page 5, applies a new filter. Where should they end up?',
-      k: 'Always reset to page 1. A new filter defines a completely new result set. Page 5 of the filtered set is likely empty or meaningless. This is a common bug when filter state and page state are managed independently with no connection between them.',
-      r: 'Keeps the user on page 5, which leads to an empty or wrong-looking table. Does not connect filter changes to page index reset.'
-    },
-    {
-      q: 'How would you implement infinite scroll? What are the trade-offs compared to traditional pagination?',
-      k: 'Use IntersectionObserver on a sentinel element at the bottom of the list. When the sentinel enters the viewport, load the next page and append data to the existing list. Trade-offs. Pros include smoother UX and fewer clicks. Cons include inability to jump to a specific page, difficulty sharing a specific scroll position, increased DOM size as more items load, and harder automated testing.',
-      r: 'Uses a scroll event listener directly, which fires on every pixel and has performance problems. Cannot name the trade-offs.'
-    },
-    {
-      q: 'With virtual scroll rendering 50,000 rows but only showing 20 in the DOM, how does the browser still show the correct scroll position and scrollbar height?',
-      k: 'The container element has a fixed height set to totalRows multiplied by rowHeight. This makes the scrollbar proportional to the real total. As the user scrolls, calculate the first visible row index from scrollTop divided by rowHeight. Render only those rows plus a small buffer above and below. Row height must be consistent or pre-measured.',
-      r: 'Cannot explain the fixed-height container trick. Thinks virtual scroll just hides and shows rows, which does not explain the correct scrollbar behavior.'
-    },
-    {
-      q: 'A user reports the table jumps when they navigate to the last page which has only 3 rows instead of the usual 20. What causes this?',
-      k: 'The table body shrinks on the last page, causing content below the table to jump upward. Fix by setting a minimum height on the table body equal to the full page row height. Alternatively fill remaining slots with invisible placeholder rows so the table always has the same height.',
-      r: 'Cannot identify the root cause. Suggests overflow hidden or similar CSS workarounds that do not address the layout shift.'
-    },
-    {
-      q: 'User changes "items per page" from 20 to 50. Walk me through all the side effects that must happen.',
-      k: 'Reset the current page index to 1. Recalculate the total page count based on the new page size and total item count. Reload data with the new page size parameter. Update URL params if state is persisted in the URL. Check that the user was not on a page that no longer exists with the new page size.',
-      r: 'Only changes the page size without resetting the page index. This causes the user to see a page that may not exist or shows unexpected results.'
-    },
-    {
-      q: 'What is the IntersectionObserver API? How is it more efficient than listening to the scroll event?',
-      k: 'IntersectionObserver is a browser API that fires a callback when a target element enters or exits the viewport, or crosses a threshold of visibility. It runs off the main thread in the browser. The scroll event fires synchronously on the main thread on every pixel of scroll movement. IntersectionObserver eliminates the need for scroll position math and is far less CPU-intensive.',
-      r: 'Does not know IntersectionObserver. Uses scroll event with getBoundingClientRect, which causes forced layout recalculations.'
-    },
-    {
-      q: 'How do you handle the case where the total item count is unknown, such as when the API does not return a total? For example, Twitter-style feeds.',
-      k: 'Use a "has more" boolean from the API response instead of a total count. When hasMore is true, show a "Load more" button or continue infinite scroll. When hasMore is false, show "You have reached the end." This avoids displaying a total that cannot be computed efficiently on the server.',
-      r: 'Tries to compute the total on the client side. Cannot handle feeds where total count is unknown or expensive to compute.'
-    },
-    {
-      q: 'How would you preload the next page of data before the user actually clicks "Next" to make navigation feel instant?',
-      k: 'After the current page renders, immediately start fetching page N+1 in the background and store it in a cache. When the user clicks "Next", serve from cache if available. This trades some extra bandwidth for dramatically lower perceived latency. Use a short TTL on the cache to avoid stale data.',
-      r: 'Does not know about prefetching or prefetch strategies. Only fetches on demand after the user clicks.'
-    },
-    {
-      q: 'A table has 1 million rows. The server supports pagination but not sorting or filtering. How do you design the UX?',
-      k: 'Honest answer. This is a backend limitation and the right fix is to ask for server-side sort and filter support. If that is not possible, the UX must be designed around the constraint by clearly communicating that only the first N pages are loaded. A mandatory date range or category filter can reduce the working set to a manageable size. Never promise the user a sort on data you cannot fully load.',
-      r: 'Tries to sort and filter 1 million rows in the browser. Does not recognize the architectural constraint.'
-    },
-    {
-      q: 'What happens if the user is on page 5 and another user deletes 10 rows from page 1? What does page 5 now show?',
-      k: 'With offset pagination, the deleted rows shift all subsequent pages by a fraction of a page. Page 5 now shows different rows than before, some of which were already seen on page 4. This is a well-known offset pagination problem. Cursor-based pagination avoids this because the cursor points to a specific record, not a position.',
-      r: 'Does not recognize this as a known problem of offset pagination. Has no solution or mitigation strategy.'
-    },
-    {
-      q: 'How do you make pagination accessible to keyboard and screen reader users?',
-      k: 'Each page button and navigation control must be a real button element or anchor with descriptive aria-label. For example "Go to page 3" rather than just "3". The current page should have aria-current set to "page". Screen reader users need to be informed when the table content changes after a page navigation using an aria-live region.',
-      r: 'Uses div elements styled as buttons for pagination. Does not add aria-labels. Does not handle screen reader announcements after page change.'
-    }
-  ]
-},
-
-// ─── GROUP 4 ─────────────────────────────────────────────────────────────────
-{
-  id: 4, name: 'Selection and Row Actions', level: 'Mid',
-  questions: [
-    {
-      q: 'How would you design the data structure to track which rows are selected in a multi-select table?',
-      k: 'Use a Set of IDs, not an array of full row objects. A Set has O(1) lookup and automatic deduplication. Store only IDs because objects can go stale if the server updates the row. Derive isSelected from selectedIds.has(row.id).',
-      r: 'Uses an array of full row objects, which has O(n) lookup and risks stale references when data refreshes.'
-    },
-    {
-      q: '"Select All on current page" versus "Select All 10,000 records across all pages." How are these fundamentally different to implement?',
-      k: 'Page selection adds all visible row IDs to the Set. This is straightforward. Global selection cannot load all IDs to memory. Instead use a flag like isAllSelected set to true, and maintain a separate Set of explicitly deselected IDs as exceptions. The API receives a flag indicating all records are selected, not a list of 10,000 IDs.',
-      r: 'Tries to fetch all 10,000 records to collect their IDs. This is a terrible UX and performance decision.'
-    },
-    {
-      q: 'User selects 50 rows and clicks "Delete." The API processes them one at a time. How do you show progress and handle partial failures?',
-      k: 'Process requests in batches of 5 to 10, not 50 serial calls. Show a progress bar with the count of completed items. Track per-item status. On partial failure, show a summary listing which items succeeded and which failed. Allow the user to retry only the failed items. Do not block the entire UI during this operation.',
-      r: 'Fires 50 serial requests with no feedback. Shows only a final success or failure message with no per-item detail.'
-    },
-    {
-      q: 'A user double-clicks a cell to enter edit mode, then presses Escape. What should happen?',
-      k: 'Cancel the edit and restore the original cell value. Make no API call. Exit edit mode. Return keyboard focus to the cell so the user can continue navigating. The original value must be stored in a local variable when entering edit mode so it can be restored on cancel.',
-      r: 'Saves on Escape. Loses focus entirely after canceling. Does not track the original value for restoration.'
-    },
-    {
-      q: 'After inline edit, the row should update without a full table reload. Compare pessimistic versus optimistic update for this scenario.',
-      k: 'Pessimistic waits for API success before updating the UI. It shows the real state and is safe, but feedback feels slow. Optimistic updates the UI immediately, then rolls back on API error. It feels fast but requires rollback logic. For a low-risk edit like a name change, optimistic is fine. For financial or status changes, pessimistic is safer.',
-      r: 'Only knows one approach. Cannot explain rollback in an optimistic update scenario.'
-    },
-    {
-      q: 'The header checkbox needs to show three states. Unchecked when none are selected, checked when all are selected, and indeterminate when some are selected. How do you compute the indeterminate state?',
-      k: 'Indeterminate is true when selectedCount is greater than zero and less than totalVisibleRows. This is a computed value derived from selection state, not stored explicitly. The indeterminate state is set via the DOM property, not an HTML attribute. Setting the attribute has no visual effect in most browsers.',
-      r: 'Stores indeterminate as a separate state variable. Does not know it must be set as a DOM property, not an HTML attribute.'
-    },
-    {
-      q: 'How do you implement drag-and-drop reordering of rows in a table? What are the key browser APIs involved?',
-      k: 'Use the HTML Drag and Drop API with draggable attribute on each row. Listen to dragstart, dragover, and drop events. Track the dragged row index. On drop, reorder the data array and re-render. For a smoother experience, the Pointer Events API or a library like dnd-kit gives more control. Accessibility. Keyboard-based reordering using arrow keys must also be implemented as the mouse drag is not accessible.',
-      r: 'Does not know the draggable attribute or the drag events. Cannot address keyboard accessibility for reordering.'
-    },
-    {
-      q: 'A right-click on a table row should show a context menu with row actions. How do you implement this and what accessibility concerns does it raise?',
-      k: 'Listen to the contextmenu event. Prevent the default browser menu. Position a custom menu at the cursor coordinates. Close it on Escape, on outside click, and on scroll. Accessibility concern. Context menus are not accessible to keyboard users. Every action in the context menu must also be reachable via another keyboard path, such as a row action button or keyboard shortcut.',
-      r: 'Implements the visual context menu but has no keyboard fallback. Does not mention closing the menu on outside click or Escape.'
-    },
-    {
-      q: 'A row has a "Duplicate" button. After clicking, a new row appears. Where should keyboard focus go?',
-      k: 'Move focus to the newly created row or to its first interactive element such as an edit button. The user has just performed an action and should be positioned to continue working on the new item. Focus going to document body or staying on the "Duplicate" button is disorienting.',
-      r: 'Focus stays on the "Duplicate" button or is lost entirely. Does not think about focus management after DOM changes.'
-    },
-    {
-      q: 'How do you prevent accidental double-clicks from submitting a form or API request twice?',
-      k: 'Disable the button immediately after the first click, before the API call completes. Use a loading state that both disables the button and shows a spinner. Re-enable only after the API responds, whether success or error. Do not rely on debouncing alone because a debounced double-click still fires twice if the two clicks are far enough apart.',
-      r: 'Relies only on debounce or does nothing. Does not disable the button during the in-flight request.'
-    },
-    {
-      q: 'The table allows batch exporting selected rows to CSV. A cell value contains a pipe character or a newline. How do you handle this in the CSV output?',
-      k: 'Wrap every cell value in double quotes. Escape any double quotes within the value by doubling them per RFC 4180. Newlines within a cell value are allowed in CSV if the cell is double-quoted. Also handle the CSV formula injection attack by prefixing values that start with equals, plus, minus, or at sign with a single quote.',
-      r: 'Just joins values with commas and no quoting. The resulting CSV breaks when a value contains a comma or newline.'
-    },
-    {
-      q: 'What is the clipboard API and how could you use it in a table context?',
-      k: 'The Clipboard API at navigator.clipboard provides programmatic read and write access to the clipboard. In a table, you might add a "Copy row data" button that writes a formatted string or JSON to the clipboard. Or implement a spreadsheet-like paste behavior where pasting structured data fills multiple cells. Note that clipboard write requires a user gesture, and clipboard read requires explicit permission.',
-      r: 'Does not know the Clipboard API. Has no ideas for clipboard integration in table interactions.'
-    }
-  ]
-},
-
-// ─── GROUP 5 ─────────────────────────────────────────────────────────────────
-{
-  id: 5, name: 'Performance', level: 'Mid to Senior',
-  questions: [
-    {
-      q: 'A table renders 1000 rows each with a formatted date. Without optimization, how many times is the format function called per render cycle? How do you reduce this?',
-      k: '1000 times per render, and more if the function is impure and called on every change detection pass. Fix by pre-processing the formatted date when data arrives and storing the result alongside the raw data. The view then reads the pre-formatted value rather than calling the function on every render.',
-      r: 'Accepts 1000 function calls as normal behavior. Uses an impure formatting function inside the template.'
-    },
-    {
-      q: 'What is the difference between "re-render" and "re-compute"? Why does this distinction matter for table performance?',
-      k: 'Re-render means updating the DOM, which involves layout, paint, and composite. This is expensive. Re-compute means recalculating a derived JavaScript value in memory. This is cheap when memoized. The goal is to separate these two things so that only genuinely changed data triggers a DOM update. Signals and computed values exist precisely for this purpose.',
-      r: 'Treats them as synonyms. Cannot explain how memoization separates computation from DOM updates.'
-    },
-    {
-      q: 'Each of your 20 rows needs a status badge loaded from a separate API endpoint. How do you fetch these efficiently?',
-      k: 'Fetch all 20 in parallel using Promise.all or forkJoin. Never fetch sequentially in a loop, which multiplies the latency. If a batch endpoint is available, use it instead. Cache results per ID so navigating back to the same page does not re-fetch. Show a per-row loading state while fetches complete.',
-      r: 'Fetches status values one by one in a loop. Blocks the entire table or blocks all rows until every single fetch completes.'
-    },
-    {
-      q: 'A filter and sort operation on 50,000 client-side records causes the UI to freeze for 500 milliseconds. What are your options?',
-      k: 'The best option is to move filtering and sorting to the server. If that is not possible, use a Web Worker to move the computation off the main thread. Chunked processing with requestIdleCallback breaks the work into small pieces. Virtual scroll ensures you only process visible rows. Debounce the input to avoid triggering on every keystroke.',
-      r: 'Only suggests moving to server-side without knowing the other options. Does not know what a Web Worker is.'
-    },
-    {
-      q: 'What is trackBy or the "key" prop in list rendering? Why does it matter for a table with CRUD operations?',
-      k: 'It tells the framework how to identify each list item across renders using a stable unique ID. Without it, the framework cannot tell which item changed so it destroys and recreates all DOM nodes when the array reference changes. With it, only the specific changed item has its DOM updated. This is critical when rows contain inputs with focus, or have their own animations and state.',
-      r: 'Does not know what trackBy does. Thinks it is optional or only a performance hint with no behavioral implications.'
-    },
-    {
-      q: 'Your table uses OnPush change detection. A parent component mutates a row object directly such as row.status equals "active". The table does not update. Why and how do you fix it?',
-      k: 'OnPush only detects input reference changes. Mutating a property on an object does not change its reference, so Angular or the framework skips re-rendering. Fix by always creating a new object reference using spread. This is the fundamental principle behind immutable data patterns in reactive UIs.',
-      r: 'Cannot explain why mutation fails with OnPush. Suggests calling detectChanges manually everywhere, which defeats the purpose of OnPush.'
-    },
-    {
-      q: 'What are Core Web Vitals and which ones are most directly affected by a heavy data table?',
-      k: 'LCP measures the time to render the largest visible element. A table that loads slowly hurts LCP. FID or INP measures how quickly the page responds to input. A table that freezes during sort or filter hurts INP. CLS measures unexpected layout shifts. A table that grows or shrinks after data loads hurts CLS. All three are affected by a poorly implemented table.',
-      r: 'Does not know Core Web Vitals. Cannot explain the relationship between table behavior and performance metrics.'
-    },
-    {
-      q: 'What is tree shaking and how does it affect a table component library you import?',
-      k: 'Tree shaking is the build tool process of removing unused exports from the final bundle. If you import a single table component but the library exports 200 components, tree shaking ensures only the table component code is included. This requires the library to use ES module exports. CommonJS requires cannot be tree-shaken. Importing from specific paths like from "lib/table" rather than from "lib" also helps.',
-      r: 'Does not know what tree shaking is. Imports entire libraries and accepts the bundle size cost.'
-    },
-    {
-      q: 'How would you use a Web Worker to offload a heavy sort operation from the main thread?',
-      k: 'Create a Worker file that receives the rows array and sort config via postMessage, performs the sort, and posts the result back. The main thread sends data to the worker and listens for the sorted result via onmessage. During sorting, the UI remains interactive because the main thread is free. The cost is the data serialization and transfer overhead, which matters for very large arrays.',
-      r: 'Has never used Web Workers. Does not know the postMessage communication model or the serialization cost of transferring data.'
-    },
-    {
-      q: 'What is the requestAnimationFrame API and when would you use it in the context of a table?',
-      k: 'requestAnimationFrame schedules a callback to run just before the next browser paint, approximately every 16 milliseconds at 60fps. Use it when you need to batch multiple DOM reads and writes in a single frame to avoid layout thrashing. Example. During a resize event, read all column widths once, then write all updated widths in the same frame. Never alternate between reads and writes.',
-      r: 'Does not know requestAnimationFrame. Uses setTimeout zero, which can run at unpredictable times outside the animation frame cycle.'
-    },
-    {
-      q: 'How do you measure and diagnose rendering performance problems in a production table? What tools do you use?',
-      k: 'Browser DevTools Performance tab records a timeline of all rendering activity including JavaScript execution, layout, paint, and composite. React DevTools Profiler and Angular DevTools show component-level render times. Lighthouse generates a performance score with specific suggestions. Real User Monitoring tools like Sentry or DataDog measure INP and LCP from actual user sessions.',
-      r: 'Only uses console.time for measurement. Does not know browser DevTools profiling or real user monitoring tools.'
-    },
-    {
-      q: 'What is code splitting and how does it benefit a large application with a data table feature?',
-      k: 'Code splitting divides the JavaScript bundle into smaller chunks that load on demand. The data table feature, its dependencies, and its chart libraries are only downloaded when the user navigates to the page that uses them. The initial page load is faster because the browser does not need to download code for features the user may never visit.',
-      r: 'Does not know code splitting. Ships all application code in a single bundle and accepts the slow initial load.'
-    },
-    {
-      q: 'How would you implement "lazy loading" for images inside table rows, such as user avatar photos?',
-      k: 'Add loading="lazy" to each img element. This is a native browser feature that defers image loading until the image is near the viewport. For older browser support, use IntersectionObserver to set the src attribute only when the row becomes visible. Always specify width and height attributes on images to prevent layout shift.',
-      r: 'Does not know loading="lazy". Downloads all avatar images as soon as the table renders, even for rows far off screen.'
-    }
-  ]
-},
-
-// ─── GROUP 6 ─────────────────────────────────────────────────────────────────
-{
-  id: 6, name: 'HTTP and Data Fetching', level: 'Mid to Senior',
-  questions: [
-    {
-      q: 'User types rapidly and you want to call the API only for the final value. How do you handle this without race conditions?',
-      k: 'Debounce plus cancel-and-replace. Debounce reduces call frequency. Cancel-and-replace using switchMap or AbortController ensures that when a new request starts, the previous in-flight one is cancelled. mergeMap keeps all requests running in parallel. concatMap queues them sequentially. Both are wrong for this use case.',
-      r: 'Only mentions debounce without cancellation. Confuses mergeMap and switchMap. Does not know AbortController.'
-    },
-    {
-      q: 'Your table API returns 503 errors intermittently. How do you implement automatic retry with exponential backoff?',
-      k: 'Retry with increasing delays. First retry at 1 second, second at 2 seconds, third at 4 seconds. This is base 2 raised to the attempt number, multiplied by 1000 milliseconds. Set a maximum of 3 retries. Only retry idempotent requests. For POST or DELETE, show an error and let the user retry manually to avoid unintended duplicate actions.',
-      r: 'Retries immediately in a tight loop. Retries non-idempotent requests like POST without considering the risk of duplicate side effects.'
-    },
-    {
-      q: 'Your table loads the same reference dropdown list on every page visit. How would you cache this?',
-      k: 'An in-memory cache in a singleton service using a Map keyed by URL. Set a time-to-live of perhaps 5 minutes. Serve cached data if available and not expired. Invalidate on mutation. Consider stale-while-revalidate, which serves the stale cache immediately for fast display and refreshes in the background.',
-      r: 'Has no caching strategy. Or caches with no invalidation, serving stale data indefinitely.'
-    },
-    {
-      q: 'User deletes a row. You update the UI immediately with an optimistic update, but the API returns 500. Walk through the full rollback implementation.',
-      k: 'Before mutation, take a snapshot of the current state. Apply the optimistic removal to the UI. Disable the delete button while the request is in flight. On API error, restore the snapshot to the UI state. Show an error notification that the delete failed. Re-enable the delete button so the user can retry. The snapshot taken before the action is the key to reliable rollback.',
-      r: 'Cannot describe the snapshot step. Shows an error but does not restore the deleted row to the UI.'
-    },
-    {
-      q: 'Compare polling versus WebSocket for real-time table updates. What factors guide your choice?',
-      k: 'Polling has the client request data every N seconds. It is simple, works everywhere, and is stateless, but wastes bandwidth when nothing has changed. WebSocket keeps a persistent bidirectional connection and lets the server push updates. It is efficient and truly real-time but requires infrastructure support and connection management. Server-Sent Events is a useful middle ground for unidirectional server push over standard HTTP.',
-      r: 'Only knows polling. Cannot explain the scalability cost of aggressive polling at high user counts.'
-    },
-    {
-      q: 'An HTTP interceptor adds a JWT to every request. The JWT expires mid-session. How does the interceptor handle token refresh without causing multiple parallel refresh calls?',
-      k: 'When a 401 arrives, check if a refresh is already in progress using a shared flag. If not, start the refresh and set the flag. Queue all other pending requests that arrived during the refresh. On success, replay all queued requests with the new token. On refresh failure, clear the queue and log the user out. The shared flag prevents multiple simultaneous refresh calls.',
-      r: 'Triggers a refresh call for every 401 response, causing multiple parallel refresh calls that conflict with each other.'
-    },
-    {
-      q: 'A page has two independent tables that both call the same API endpoint. How do you avoid making the same HTTP call twice?',
-      k: 'A shared service with a request deduplication layer. The first caller starts the HTTP request and stores a reference to the pending observable or promise. The second caller subscribes to the same pending request rather than starting a new one. Both callers receive the same response when it arrives. This pattern is sometimes called a request cache or in-flight request cache.',
-      r: 'Makes two independent HTTP calls. Or couples the two tables together by sharing state directly, which creates unwanted coupling.'
-    },
-    {
-      q: 'What is CORS and how does it affect your table fetching data from a different domain?',
-      k: 'CORS is a browser security mechanism that blocks requests from one origin to a different origin unless the server explicitly allows it via the Access-Control-Allow-Origin response header. Your frontend at domain A cannot call an API at domain B unless domain B includes the appropriate CORS headers. CORS is enforced by the browser, not the server. Backend developers configure CORS. Frontend developers diagnose it by reading the browser console error and checking response headers.',
-      r: 'Does not know what CORS is. Thinks adding a header in the frontend request fixes a CORS error.'
-    },
-    {
-      q: 'What is the difference between REST and GraphQL for a table that needs to fetch data with flexible column sets?',
-      k: 'REST returns a fixed response shape for each endpoint. If the table needs 5 of 20 available fields, REST still returns all 20 unless the endpoint supports field projection. GraphQL lets the client specify exactly which fields it needs in the query. This eliminates over-fetching, which matters for tables that support configurable columns where different users need different subsets of fields.',
-      r: 'Cannot explain over-fetching. Thinks REST and GraphQL are interchangeable with no relevant difference for dynamic column tables.'
-    },
-    {
-      q: 'What is the Service Worker and how could it support your table when the user goes offline?',
-      k: 'A Service Worker is a JavaScript file that runs in the background, separate from the page. It can intercept network requests and serve responses from a cache when the network is unavailable. For a table, you could cache the last loaded page of data and serve it offline with a banner saying "Viewing cached data from [timestamp]." Any write operations must be queued and synced when connectivity returns.',
-      r: 'Does not know Service Workers. Has no offline strategy. Shows an error when the network disappears.'
-    },
-    {
-      q: 'How do HTTP/2 and HTTP/3 affect the strategy of how many API calls you make from a table page?',
-      k: 'HTTP/1.1 has a limit of 6 parallel connections per domain, making many small requests expensive. HTTP/2 multiplexes all requests over a single connection with no practical parallel limit. This means the historic need to batch requests into one large call to avoid connection limits is less relevant under HTTP/2. However batching still reduces overhead from individual request parsing and response handling on the server.',
-      r: 'Does not know about connection multiplexing in HTTP/2. Applies HTTP/1.1 batching strategies to all situations regardless of protocol.'
-    },
-    {
-      q: 'A table makes an API call every time the user scrolls to a new row in an infinite scroll scenario. How do you avoid hammering the API?',
-      k: 'Only trigger a fetch when the user reaches a threshold, such as 80 percent of the currently loaded rows. This gives time to load the next page before the user reaches the bottom. Avoid fetching on every IntersectionObserver event if the user is scrolling very fast. Use a lock flag to prevent a second fetch from starting while one is already in progress.',
-      r: 'Triggers a fetch on every scroll event or on every IntersectionObserver callback without any throttling or lock.'
-    },
-    {
-      q: 'How do you handle a scenario where the API returns data in a different shape than what your table component expects?',
-      k: 'Create a transformation or mapping function, often called an adapter or mapper, that converts the API response shape into the shape your component needs. Keep this function in the service or data layer, not in the component. This isolates the component from API changes. When the API shape changes, only the mapper needs updating.',
-      r: 'Maps data inline inside the component template. The component becomes tightly coupled to the specific API response shape.'
-    }
-  ]
-},
-
-// ─── GROUP 7 ─────────────────────────────────────────────────────────────────
-{
-  id: 7, name: 'State Management', level: 'Mid to Senior',
-  questions: [
-    {
-      q: 'When should table state live in the component versus a shared store? Give concrete criteria.',
-      k: 'Component-local state is correct when state is only needed in this one view, does not need to survive navigation, and is not shared with sibling components. A shared store is correct when state is needed across multiple routes, must survive navigation, is shared with non-parent components, or requires undo and redo capabilities. Default to local state and only lift it when you have a specific reason.',
-      r: 'Puts everything in a global store because it feels safer or easier. Cannot articulate the cost of unnecessary global state.'
-    },
-    {
-      q: 'Two sibling components need to share "selected rows" state. Neither is the parent. What are your options?',
-      k: 'Lifting state to the nearest common ancestor is the cleanest approach. A shared singleton service is also valid and simpler. A global store is overkill for this scope and adds unnecessary complexity. An event bus decouples components but makes data flow hard to trace. Start with lifting state to the parent.',
-      r: 'Only knows global stores. Cannot explain why lifting state to a parent is simpler and more traceable.'
-    },
-    {
-      q: 'A user makes 10 inline edits in a table. They click "Undo" 3 times. How do you implement this?',
-      k: 'Maintain a history stack as an array of past states. Each edit pushes the pre-edit state snapshot onto the stack. Undo pops the most recent snapshot and restores it as the current state. Set a maximum depth of perhaps 50 entries to prevent unbounded memory growth. An alternative is the Command pattern where each action has a paired do and undo function.',
-      r: 'Cannot explain the history stack concept. Suggests fetching the original data from the server on undo, which breaks offline scenarios and is slow.'
-    },
-    {
-      q: 'You have 5 independent tables on one page. Should they share a single store instance or each have their own?',
-      k: 'Each table needs its own scoped state instance. A single shared store would mix all five tables state together, making it hard to isolate each table logic. Use a factory pattern to create independent store instances, or scope the store to each table component injector. The tables are independent features that happen to coexist on the same page.',
-      r: 'Uses a single global store with keys like "table1" and "table2". This becomes hard to maintain and does not scale.'
-    },
-    {
-      q: 'A user s filter preferences should persist across browser restarts. What is your implementation strategy?',
-      k: 'Serialize the filter state to JSON and store it in localStorage keyed by a user-specific key. Define the schema with a version number field. On load, validate the version. If there is a mismatch, discard the stored state and reset to defaults rather than crashing on an unexpected shape. Never store sensitive data in localStorage.',
-      r: 'Stores raw objects without a version number. The application breaks silently after an update that changes the filter schema.'
-    },
-    {
-      q: 'Your store has derived state "filteredAndSortedRows" computed from raw rows, active filters, and sort config. How do you ensure it does not recompute unnecessarily?',
-      k: 'Use a computed signal or memoized selector. The derived value recalculates only when one of its dependencies changes. All dependencies must use immutable update patterns. If rawRows is mutated rather than replaced, computed or memoized selectors will not detect the change and will serve stale data.',
-      r: 'Recomputes the derived state on every state change regardless of whether the relevant inputs changed.'
-    },
-    {
-      q: 'What is the difference between unidirectional and bidirectional data flow? Why does most modern state management enforce unidirectional flow?',
-      k: 'Unidirectional means data flows one way. State changes produce UI renders, and UI events dispatch actions that change state. There is a single, traceable path. Bidirectional allows the UI to directly mutate state, which makes it very hard to trace where a state change originated. Unidirectional flow makes debugging predictable, enables time-travel debugging, and makes race conditions easier to reason about.',
-      r: 'Cannot explain the difference. Has no opinion on which is better or why.'
-    },
-    {
-      q: 'What is the problem with storing derived values like "isLoading" as a boolean that you set to true before an API call and false after? What can go wrong?',
-      k: 'Two concurrent requests will conflict. The first request sets isLoading to true. The second request also sets it to true. The first request completes and sets isLoading to false. Now the second request is still in flight but isLoading is false, hiding the loading indicator. Fix by tracking the count of pending requests or using a loading state per individual request rather than one shared boolean.',
-      r: 'Does not recognize the race condition with concurrent requests. Uses a single isLoading boolean for all requests on the page.'
-    },
-    {
-      q: 'Describe the observer or reactive pattern. How does it relate to how your table subscribes to data updates?',
-      k: 'The observer pattern defines a subject that maintains a list of observers and notifies them when its state changes. In reactive programming, an Observable is a stream that emits values over time and any number of subscribers can listen. A table subscribes to a data stream from a store or service. When new data arrives, the table re-renders. This decouples the data source from the UI.',
-      r: 'Cannot describe the observer pattern. Does not connect reactive programming concepts to the table data flow.'
-    },
-    {
-      q: 'How do you handle loading state when multiple parts of the page depend on different API calls that may complete at different times?',
-      k: 'Track loading state per request, not globally. Each section of the page shows its own loading indicator based on its own isLoading flag. Use combineLatest or Promise.allSettled if some sections need to wait for all data to arrive before rendering. Avoid a single global loading overlay that blocks the whole page when only one section is fetching.',
-      r: 'Uses one global loading spinner that blocks the entire page while any request is in flight. Other sections that already have data remain invisible during the wait.'
-    },
-    {
-      q: 'What is the difference between "state" and "cache" in a frontend application? Does your table have both?',
-      k: 'State is application data that drives the UI and changes through user interactions. Cache is a copy of remote data stored locally for performance. A table has both. UI state like selected rows, current page, and active filters is true state that only exists in the client. The rows themselves are a cache of server data. Treating cached data as permanent state leads to stale UI.',
-      r: 'Treats all data as the same kind of state. Does not distinguish server-cache data from client-owned UI state.'
-    },
-    {
-      q: 'How do you share state between a table component and a details panel that opens when a row is clicked, without making them directly dependent on each other?',
-      k: 'A shared service or store holds the "selected row" state. The table writes to it on row click. The details panel reads from it reactively. Neither component imports the other directly. They are both connected through the shared service, which acts as an intermediate layer. This enables each component to be tested in isolation.',
-      r: 'The table directly holds a reference to the details panel component and calls methods on it. This creates tight coupling that prevents independent testing.'
-    }
-  ]
-},
-
-// ─── GROUP 8 ─────────────────────────────────────────────────────────────────
-{
-  id: 8, name: 'Micro-Frontend', level: 'Senior',
-  questions: [
-    {
-      q: 'Your table component is in a Remote app. The Shell lazily loads it. What must be configured for Angular DI to work without duplicate instances?',
-      k: 'Angular core, forms, and router must be declared as singleton and strictVersion true in the federation shared config. Both Shell and Remote must agree on the exact version. Two Angular instances cause broken DI, broken routing, and broken forms. This is the single most common micro-frontend integration failure.',
-      r: 'Does not know about singleton configuration. Cannot explain what having two Angular instances means in a running application.'
-    },
-    {
-      q: 'The Shell needs to pass a "patientId" into the Remote table. What are the communication options and what are the trade-offs?',
-      k: 'URL params are the simplest and most reliable option. They are bookmarkable, shareable, and framework-agnostic. A shared singleton service in a shared library is also valid. A custom DOM event on window is loose coupling but hard to type-check. Never import directly from one remote into another remote, as this defeats the independent deployment model.',
-      r: 'Suggests importing the Remote service directly into the Shell. This creates a hard dependency that breaks independent deployments.'
-    },
-    {
-      q: 'Remote table needs to notify the Shell when a row is selected. How do you implement cross-MFE communication without creating tight coupling?',
-      k: 'Options from least to most coupled. Browser CustomEvent dispatched on window and listened to by the Shell. A shared singleton service in a shared library that both apps import. URL state changes that the Shell observes. Direct cross-remote imports are not an option as they break the independence model.',
-      r: 'The Remote directly imports and calls Shell code. This creates a circular dependency and prevents independent deployment.'
-    },
-    {
-      q: 'Team B deploys the Remote with a breaking change to the table component interface. Team A Shell is still on the old interface. What is the failure mode?',
-      k: 'At runtime, the Shell passes props that the Remote no longer accepts, causing either a silent wrong behavior or a runtime error. Prevention requires consumer-driven contract tests where the Shell defines the expected interface and the Remote must pass those tests before deploying. Semantic versioning and communication protocols between teams are also necessary.',
-      r: 'Assumes teams will coordinate manually via chat. Does not know about contract testing.'
-    },
-    {
-      q: 'The Remote deployment fails halfway. Shell users get a blank table. How do you handle this at the Shell level?',
-      k: 'Wrap the Remote mount point in an error boundary or a try-catch around the dynamic import. Catch the module load failure and display a meaningful fallback UI such as "This section is temporarily unavailable." Set up monitoring alerts on load failures. The Shell must remain fully functional even when one Remote is unavailable.',
-      r: 'Has no error handling for Remote load failure. The entire Shell application becomes unusable when one Remote fails to load.'
-    },
-    {
-      q: 'Three Remote apps all need the same JWT auth token. Where does authentication live in a micro-frontend architecture?',
-      k: 'Authentication lives in a shared library marked as singleton in federation config. The HTTP interceptor also lives in this shared library. Token refresh is handled once, either by the Shell or a dedicated auth remote. Individual remotes never implement their own auth logic. They inherit the shared interceptor by using the shared Angular HttpClient.',
-      r: 'Each Remote implements its own auth service. This results in three independent sessions, three token refresh flows, and potential conflicts between them.'
-    },
-    {
-      q: 'Your micro-frontend bundle is 2MB because it includes Angular plus all its dependencies. The Shell bundle is also 2MB for the same reason. How do you fix this?',
-      k: 'Configure Angular and other framework libraries as shared singletons in the federation config. When properly configured, Angular is only in the Shell bundle. Remotes reference the Shell copy at runtime. Verify with a bundle analyzer after the change. Each Remote bundle should shrink significantly.',
-      r: 'Accepts duplicate bundles as a normal cost of micro-frontends. Does not know about shared library configuration in federation.'
-    },
-    {
-      q: 'How would you implement feature flags across multiple micro-frontends so that a new table feature can be toggled without redeploying?',
-      k: 'A shared feature flag service in a singleton shared library. Flags are fetched from a remote configuration server at runtime. All remotes inject this shared service to check flag values. The Shell fetches flags on startup and all remotes benefit. This avoids coordinating deployments across multiple repos for a simple feature toggle.',
-      r: 'Each Remote fetches its own flags independently. This means a flag change may appear in some remotes before others, causing an inconsistent state across the page.'
-    },
-    {
-      q: 'What is a Module Federation "remote entry" file? What happens if it is cached by the CDN and an outdated version is served?',
-      k: 'The remote entry is a small JavaScript file that the Shell loads first to discover what the Remote exposes and where to find it. If the CDN caches a stale remote entry, the Shell loads the wrong version of the Remote. Fix by setting Cache-Control no-cache on the remote entry file specifically, or by using a version hash in the remote entry URL. The actual module chunks can be cached aggressively because they use content-hash filenames.',
-      r: 'Does not know what the remote entry file is. Has no strategy for cache invalidation of the remote entry.'
-    },
-    {
-      q: 'How would you test a Remote component integration with the Shell without running both applications simultaneously in every test?',
-      k: 'Contract testing is the answer. The Shell defines the expected interface as a test suite. The Remote runs those tests against its actual implementation. Integration tests use a minimal host application that loads the Remote in isolation. Full end-to-end tests run in CI on the real integrated environment. Contract tests are fast and stable, end-to-end tests are slow and reserved for critical paths.',
-      r: 'Only does full end-to-end testing. Slow CI pipeline and flaky tests from environment dependencies.'
-    },
-    {
-      q: 'What is the difference between "horizontal" and "vertical" micro-frontend slicing? Which approach does this codebase seem to follow?',
-      k: 'Horizontal slicing divides by UI layer, for example one remote for the navigation, another for the content area, another for the sidebar. Vertical slicing divides by business domain, for example one remote for patient overview, another for appointments. Vertical slicing is strongly preferred because each remote can be owned end-to-end by one team with full context. The codebase follows vertical slicing with PatientOverzicht, VVT, and PatientZoeken remotes.',
-      r: 'Does not know the distinction. Cannot explain why vertical slicing produces better team ownership and fewer cross-team dependencies.'
-    },
-    {
-      q: 'A shared utility library is used by three Remotes. One Remote needs to update the utility library in a breaking way. How do you manage this without breaking the other two Remotes?',
-      k: 'Semantic versioning. Release the breaking change as a new major version. The Remote that needs the new version updates its dependency. The other two Remotes stay on the previous version temporarily. This only works if Remotes bundle their own copy of the library. If the library is a shared singleton, all Remotes must update simultaneously or you use an API compatibility adapter.',
-      r: 'Updates the shared library and redeploys all three Remotes at once. Does not think about the risk of coordinated deployments or the option of versioned independent copies.'
-    }
-  ]
-},
-
-// ─── GROUP 9 ─────────────────────────────────────────────────────────────────
-{
-  id: 9, name: 'Accessibility and UX Polish', level: 'Mid to Senior',
-  questions: [
-    {
-      q: 'A keyboard-only user must navigate the table, select rows, and trigger row actions. Walk me through all required keyboard interactions.',
-      k: 'Arrow keys navigate between cells. Space toggles row selection. Enter activates the focused action button. Tab moves between interactive elements within the table. Escape closes any open menus or dialogs. The table should have a role of grid and each row should have role of row. All interactive elements must have a visible focus indicator.',
-      r: 'Only mentions the Tab key. Does not know about arrow key navigation inside a grid role element.'
-    },
-    {
-      q: 'A screen reader user needs to know which column is sorted and in which direction. How do you implement this?',
-      k: 'Add aria-sort attribute to the th element with value "ascending" or "descending". When sort changes, an aria-live region set to "polite" announces the change such as "Table sorted by Name, ascending". The visual sort icon alone is not sufficient because screen readers do not read CSS content or background images.',
-      r: 'Relies only on the sort icon. Does not know the aria-sort attribute.'
-    },
-    {
-      q: 'After deleting a row, keyboard focus disappears and goes to the document body. Why is this bad and how do you fix it?',
-      k: 'The deleted element no longer exists in the DOM so the browser drops focus to the body, which is disorienting for keyboard and screen reader users. Fix by programmatically moving focus to the next row after the deleted one. If the last row was deleted, move focus to the previous row or to the table caption.',
-      r: 'Accepts focus loss as normal behavior. Has never considered focus management for dynamic DOM changes.'
-    },
-    {
-      q: 'Your table has 50 rows each with a "View Details" link. All 50 links say "View Details." Why is this an accessibility problem?',
-      k: 'Screen reader users often navigate by listing all links on a page. They hear "View Details, View Details, View Details..." with no context about what each link goes to. Fix using aria-label to add context such as "View Details for John Doe" on each link. Alternatively use a visually-hidden span inside the link with the row context.',
-      r: 'Does not know that non-descriptive link text is an accessibility problem. Does not know aria-label.'
-    },
-    {
-      q: 'A user applies a filter and the table updates dynamically. A screen reader user does not know the table changed. How do you inform them?',
-      k: 'An aria-live region set to "polite" announces the result count after the table updates. For example "Showing 12 results." Place this element near the table. Update its content after the table DOM settles. The polite setting waits for the user to finish their current announcement before reading the new one.',
-      r: 'Does not know aria-live. Only provides visual feedback. Screen reader users have no indication that the table content changed.'
-    },
-    {
-      q: 'On a 320 pixel mobile screen, your 8-column table is unusable. What are the strategic options?',
-      k: 'Priority columns. Show only essential columns agreed with the designer. Horizontal scroll inside the table container. Responsive card layout that completely transforms the row into a stacked card on mobile. Column toggle menu that lets the user choose visible columns. Each has different implementation effort and UX outcomes.',
-      r: 'Only suggests horizontal scroll. Does not discuss column priority, card layout, or user-controlled column visibility.'
-    },
-    {
-      q: 'What is a "focus trap" and when would you need one in the context of a table?',
-      k: 'A focus trap confines keyboard focus to a specific element subtree, preventing Tab from leaving it. You need this when a modal dialog or dropdown opens as a result of a row action. Without a focus trap, Tab moves focus out of the dialog and behind the overlay, which is confusing. When the dialog closes, focus must return to the element that triggered it.',
-      r: 'Does not know what a focus trap is. Modals and dialogs in the table allow focus to escape behind the overlay.'
-    },
-    {
-      q: 'How do you ensure your table remains usable when a user has enabled "prefers-reduced-motion" in their operating system?',
-      k: 'Use the CSS media query prefers-reduced-motion to disable or reduce animations. Row insertion animations, sort animations, and loading transitions should either not play or play as instant transitions. Never use motion as the sole way to communicate a state change, such as using only a spinning animation to indicate loading.',
-      r: 'Does not know prefers-reduced-motion exists. Ships animations with no accommodation for users who get motion sickness or have vestibular disorders.'
-    },
-    {
-      q: 'What is color contrast ratio and why is it important for table text and status badges?',
-      k: 'Color contrast ratio measures the difference in luminance between text and its background. WCAG AA requires at least 4.5 to 1 for normal text and 3 to 1 for large text. Status badges with light backgrounds and white text often fail this threshold. Use a tool like the Chrome DevTools color contrast checker or WebAIM Contrast Checker to verify every badge variant.',
-      r: 'Does not know WCAG contrast requirements. Chooses badge colors based on aesthetics without checking contrast ratios.'
-    },
-    {
-      q: 'A column header tooltip explains what the column contains. How do you make this tooltip accessible?',
-      k: 'Implement the tooltip as an element with role="tooltip" referenced by aria-describedby on the trigger element. The tooltip must be keyboard-accessible by showing on focus, not just on hover. The tooltip text must not duplicate information already visible in the header. Never use the native title attribute as a tooltip because it is inaccessible on touch devices and screen reader behavior is inconsistent.',
-      r: 'Uses the HTML title attribute for tooltips. Does not test with keyboard or screen reader.'
-    },
-    {
-      q: 'Your table is embedded in a single-page application. When the user navigates to the table route, a screen reader does not announce anything. What is wrong?',
-      k: 'Single-page navigation does not trigger the browser to announce the new page title the way a full page reload does. Fix by using an aria-live region to announce route changes. Set the document title on each route change. Some accessibility specialists recommend moving focus to a "main content" skip link or the page heading on every route change.',
-      r: 'Does not know that client-side routing does not trigger page announcements. Has no strategy for screen reader route change communication.'
-    },
-    {
-      q: 'What is the "skip to main content" link and why would a user on your table page need it?',
-      k: 'A skip link is a visually-hidden anchor at the top of the page that becomes visible on focus. It jumps keyboard focus directly to the main content area, bypassing the navigation menu and other repeated header elements. A screen reader or keyboard user visiting a table page would otherwise have to Tab through every navigation item before reaching the table on every page load.',
-      r: 'Has never heard of or implemented a skip link. Does not recognize the cost of repetitive navigation for keyboard users.'
-    }
-  ]
-},
-
-// ─── GROUP 10 ────────────────────────────────────────────────────────────────
-{
-  id: 10, name: 'Forms in Table', level: 'Mid to Senior',
-  questions: [
-    {
-      q: 'A filter bar above the table is a form. Should the table update on every keystroke or wait for a "Search" button click?',
-      k: 'Instant update is better UX for simple text filters on small datasets. Needs debounce and request cancellation. Button-triggered is better for expensive searches, date ranges, and complex multi-field combinations. A hybrid approach debounces text inputs but triggers immediately on structured inputs like dropdown selections.',
-      r: 'Gives one answer without acknowledging the trade-offs. Does not mention debounce for real-time updates.'
-    },
-    {
-      q: 'During inline editing, "end date" must be after "start date." How do you implement this cross-field validation?',
-      k: 'Cross-field validation must live at the FormGroup level for the row, not on individual controls. Write a custom group validator function that reads both control values and returns an error object if the condition fails. Display the group-level error in a visible area within the row.',
-      r: 'Tries to validate end date by accessing start date from a parent component or service. Bypasses the reactive form validation system entirely.'
-    },
-    {
-      q: 'A table schema comes from an API. Some columns are text inputs, some are dropdowns with options, some are date pickers. How do you build this as a dynamic form system?',
-      k: 'Map each column type string to a FormControl type at runtime using a factory function. Build the FormGroup dynamically based on the schema. Use a component registry object that maps type strings like "text" or "select" to their corresponding input components. Never hardcode column types in the template.',
-      r: 'Hard-codes all column types with a long switch statement or series of conditional templates. Cannot describe how to instantiate components dynamically from configuration.'
-    },
-    {
-      q: 'User has unsaved inline edits in the table and tries to navigate away. How do you warn them?',
-      k: 'A CanDeactivate route guard checks whether any row form is dirty. If so, it shows a confirmation dialog asking whether to leave and discard changes. If the user confirms, discard and navigate. If they cancel, stay on the page and return focus to the table. Never auto-save without explicit user intent.',
-      r: 'Allows navigation without warning, silently discarding changes. Or auto-saves on every navigation without user awareness.'
-    },
-    {
-      q: 'An async validator checks if a username in a table cell is unique via API. The user types fast. What problems arise?',
-      k: 'Many API calls fire simultaneously, one per character. The last response may not match the current input due to race conditions. Fix by debouncing inside the async validator. Cancel the previous validation call using switchMap. Show a "checking" state while validation runs. Cache the last result so the same value does not re-validate.',
-      r: 'Fires an API call on every character. Does not handle the race condition where an older response arrives after a newer one.'
-    },
-    {
-      q: 'How do you handle form state when the user navigates between rows in a table that uses inline editing? Each row has its own form.',
-      k: 'Each row form is a standalone reactive form scoped to that row component. Changes in row A do not affect row B. When the user leaves a row without saving, either auto-save or prompt to save. Use a dirty flag per row to show a visual indicator for rows with unsaved changes.',
-      r: 'Uses one global form for the entire table. Editing row A overwrites row B state because all rows share the same form controls.'
-    },
-    {
-      q: 'What is the difference between form-level and field-level error display? When should you use each?',
-      k: 'Field-level errors appear next to the specific input that failed. They are best for single-field violations like "Email is required." Form-level or group-level errors appear near the submit button or at the top of the form. They are best for cross-field violations like "End date must be after start date" where neither individual field is alone at fault.',
-      r: 'Always displays errors at the field level. Cannot show a meaningful error for cross-field validation.'
-    },
-    {
-      q: 'How do you make a form input in a table cell fully keyboard accessible, including the Tab order across the entire row?',
-      k: 'By default, inputs are naturally in the Tab order. Ensure the Tab order follows the visual left-to-right column order by not using tabindex values greater than 0. After editing the last cell in a row, Tab should move to the first cell of the next row or to a "Save row" button. Define this intentionally rather than relying on DOM order alone.',
-      r: 'Uses positive tabindex values that disrupt the natural Tab order. Tab behavior across rows is unpredictable.'
-    },
-    {
-      q: 'A filter form has a date range picker. The user selects a start date but not an end date. Is this a valid or invalid state? How do you model this in your form?',
-      k: 'Both partial and complete selections are potentially valid depending on the business requirement. Model the date range as a FormGroup with two optional controls. A custom group validator activates only when both values are present and checks the order. The partial state with only a start date may be valid and means "from this date onward." Never mark the start date invalid just because end date is empty.',
-      r: 'Marks start date as invalid immediately when end date is empty. Forces the user to enter both dates simultaneously.'
-    },
-    {
-      q: 'How do you implement an "Add Row" flow inline in the table? Where does the new empty row appear and what is the form lifecycle?',
-      k: 'Append a new row to the top or bottom of the table with an empty, pre-focused FormGroup. Show "Save" and "Cancel" buttons on the new row. On save, call the API and on success replace the empty row with the saved data. On cancel, remove the empty row without any API call. The new row form is separate from the existing row forms.',
-      r: 'Opens a separate add modal instead of inline creation. Or adds the row inline but the form lifecycle is the same as an existing row, causing confusion with the existing row dirty check.'
-    }
-  ]
-},
-
-// ─── GROUP 11 ────────────────────────────────────────────────────────────────
-{
-  id: 11, name: 'Security', level: 'Senior',
-  questions: [
-    {
-      q: 'An "Admin Actions" column should only be visible to admin users. Where do you enforce this, frontend, backend, or both?',
-      k: 'Both layers always. Frontend hides the column for UX so non-admin users are not confused by controls they cannot use. Backend blocks the API endpoint regardless of what the frontend sends. Frontend enforcement alone is security theater. Anyone with browser DevTools can unhide the column and call the API directly.',
-      r: 'Says "frontend is enough." Does not understand that frontend code runs on the user machine and is fully controllable by that user.'
-    },
-    {
-      q: 'A user exports the table to CSV. A cell value contains "=CMD|/C calc". What is this attack and how do you prevent it?',
-      k: 'This is CSV injection, also known as formula injection. When opened in Excel or Google Sheets, formulas in cells can execute system commands. Prevention requires prefixing any cell value that starts with equals, plus, minus, at sign, tab, or carriage return with a single quote. Excel treats this as a text literal and does not execute it as a formula.',
-      r: 'Has never heard of CSV injection. Thinks CSV files are inherently safe because they contain no HTML or JavaScript.'
-    },
-    {
-      q: 'A search input sends user-typed text to the API. What injection risks exist on the frontend side?',
-      k: 'If the search term is reflected back in the DOM and rendered as HTML, there is an XSS risk. Always set text content using textContent or the framework binding, never innerHTML, when inserting user-supplied strings into the DOM. SQL injection and NoSQL injection are backend risks that must be mitigated with parameterized queries. Frontend sanitization is defense-in-depth but not the primary defense.',
-      r: 'Thinks frontend input sanitization prevents SQL injection on the backend. Does not understand the separation between client and server trust boundaries.'
-    },
-    {
-      q: 'Your table API returns 20 fields per row but the table displays only 5. Is this acceptable?',
-      k: 'Not acceptable. The other 15 fields are visible in browser DevTools, in proxy tools, and to anyone who inspects network traffic. Sensitive fields should not be returned at all by the API for users who do not need them. Apply the principle of least privilege to API responses. Use field projection, sparse fieldsets, or role-based response shaping on the backend.',
-      r: 'Accepts over-fetching as normal because "the fields are not displayed in the UI." Does not understand that network traffic is visible.'
-    },
-    {
-      q: 'The table displays patient data that is classified as PII. What technical controls can you implement at the UI level?',
-      k: 'CSS user-select none reduces casual copy-paste but is easily bypassed. A watermark showing the logged-in username acts as a deterrent. Audit logging records who viewed what data and when. Session timeout for idle users. Masking sensitive fields by default with a toggle to reveal. These are deterrents and audit tools, not real security. Access control and data classification on the backend are the real protection.',
-      r: 'Claims that CSS user-select none prevents data leakage. Does not distinguish between deterrents and actual security controls.'
-    },
-    {
-      q: 'What is Content Security Policy and how does it protect the page that contains your table?',
-      k: 'CSP is a response header from the server that tells the browser which sources are allowed to load scripts, styles, and other resources. A strict CSP prevents injected scripts from executing even if an XSS vulnerability exists in the page. For a table with inline editing, you must ensure CSP allows your application scripts and whitelisted CDNs. Inline scripts and eval are forbidden by default in a strict CSP.',
-      r: 'Does not know what CSP is. Has never checked whether the application has CSP headers configured.'
-    },
-    {
-      q: 'A third-party chart library is used to visualize table data. How could this introduce a security risk and how do you mitigate it?',
-      k: 'Supply chain attack. If the library is compromised, malicious code runs in your application. Mitigations include pinning exact versions with a lockfile, using Subresource Integrity for CDN-loaded scripts, auditing dependencies with npm audit, monitoring for known vulnerability disclosures, and minimizing the number of third-party dependencies.',
-      r: 'Does not think about supply chain risks. Uses always-latest versions from CDN with no integrity verification.'
-    },
-    {
-      q: 'Your table allows users to customize column labels. A user enters "<script>alert(1)</script>" as a column label. What happens and how do you prevent it?',
-      k: 'If the label is inserted into the DOM as innerHTML, the script executes as a stored XSS attack. All other users who see this customized table become victims. Prevention requires using textContent for all user-supplied strings, never innerHTML. Framework template bindings like Angular double curly braces or React JSX expressions automatically escape HTML entities. Never use dangerouslySetInnerHTML or similar bypass methods on user-supplied content.',
-      r: 'Uses innerHTML to insert user content. Does not understand the difference between text and HTML rendering in the DOM.'
-    },
-    {
-      q: 'How do you handle HTTPS in a development environment where you need to test features that require a secure context, such as Clipboard API or Service Workers?',
-      k: 'localhost is treated as a secure context by most browsers even without HTTPS. For custom domain development, generate a local certificate using mkcert, which creates a browser-trusted certificate for localhost or a custom domain. Both certificates get stored in the local certificate store. This avoids certificate warnings during development without weakening security practices.',
-      r: 'Uses self-signed certificates that cause browser warnings. Or disables certificate validation globally in the browser, which masks real certificate problems.'
-    },
-    {
-      q: 'An API endpoint for deleting table rows accepts the row ID in the URL. What prevents a malicious user from deleting other users rows by guessing IDs?',
-      k: 'Access control enforcement on the backend. The API must verify that the authenticated user has permission to delete the specific row before executing the delete. Using unpredictable UUIDs instead of sequential integers also reduces the risk of ID enumeration but does not replace proper access control. Frontend validation of permissions is again security theater and insufficient alone.',
-      r: 'Thinks using UUIDs is the full solution. Does not mention server-side ownership validation per request.'
-    },
-    {
-      q: 'How do you safely store an authentication token for use across requests in a single-page application?',
-      k: 'Memory storage, meaning a JavaScript variable, is the most secure option. The token is gone on page refresh, which is a usability trade-off. SessionStorage survives within the tab but not across tabs. LocalStorage persists but is accessible to any JavaScript on the page, making it vulnerable to XSS. HttpOnly cookies are immune to JavaScript access and are generally recommended for sensitive tokens. Never store tokens in non-HttpOnly cookies.',
-      r: 'Always uses localStorage because it is simple. Does not understand that localStorage is readable by any JavaScript, including injected scripts.'
-    }
-  ]
-},
-
-// ─── GROUP 12 ────────────────────────────────────────────────────────────────
-{
-  id: 12, name: 'Testing', level: 'Senior',
-  questions: [
-    {
-      q: 'How do you test a table component sorting behavior without coupling your tests to the specific framework sorting library?',
-      k: 'Extract the sort logic as a pure function and test that function independently of any component or DOM. In the component test, mock the data source and verify the sort function is called with the correct parameters. Never test what the framework does internally. Test only the logic you wrote.',
-      r: 'Tests the framework sort library behavior. Or mounts the full table and checks DOM node order, which is slow, fragile, and framework-dependent.'
-    },
-    {
-      q: 'You want to test "when filter changes, the API is called with the correct URL params." How do you structure this test?',
-      k: 'Test the HTTP service in isolation. Mock the HTTP layer using the framework HTTP testing utilities. Trigger a filter change programmatically. Assert that the HTTP request was made with the correct URL and params. Do not go through the component to test service behavior.',
-      r: 'Renders the entire component just to verify that the service calls the correct URL. The test is slow and tests too much at once.'
-    },
-    {
-      q: 'Your table has 15 different valid combinations of filter, sort, and page state. You cannot write 15 separate tests. What is the better approach?',
-      k: 'Parameterized or data-driven tests. Define an array of input and expected output pairs. Run the same assertion logic against all combinations. This forces you to extract the combination logic as a testable pure function. The test suite remains readable and adding new combinations requires only one new data entry.',
-      r: 'Writes 15 individual copy-paste tests. Or skips testing combinations entirely and only tests one happy path.'
-    },
-    {
-      q: 'How do you test an HTTP interceptor that adds auth headers and handles token refresh on 401?',
-      k: 'Three distinct test cases. First, make a request and assert the auth header is present. Second, mock a 401 response, assert a token refresh call is made, and assert the original request is replayed with the new token. Third, mock a failed refresh and assert the logout flow is triggered. Test each scenario in isolation.',
-      r: 'Cannot simulate a 401 response in a test environment. Only tests the happy path where no auth error occurs.'
-    },
-    {
-      q: 'A Micro-Frontend Remote passes all unit tests but breaks when integrated with the Shell. What testing strategy prevents this?',
-      k: 'Contract testing. The Shell defines the expected interface as a contract test suite. The Remote runs those tests against its own implementation. An integration test harness loads Shell and Remote together in a controlled environment. Full end-to-end tests cover the critical user paths across the integration. Contract tests are orders of magnitude faster than full end-to-end for catching interface mismatches.',
-      r: 'Only uses end-to-end testing for integration. No tests catch the interface mismatch before the combined deployment fails.'
-    },
-    {
-      q: 'What is the test pyramid and how does it apply to a table feature with sorting, filtering, HTTP calls, and a route guard?',
-      k: 'Unit tests form the broad base. Sort function, filter function, HTTP service methods, and guard logic. Integration tests form the middle. Component with mocked services, form with validation. End-to-end tests form the narrow top. One or two critical user flows. An inverted pyramid with mostly end-to-end tests is slow, expensive, and fragile.',
-      r: 'Only writes end-to-end tests because they test the real thing. Cannot explain why unit tests at the base are faster, more stable, and more actionable when they fail.'
-    },
-    {
-      q: 'What is the difference between a mock, a stub, a spy, and a fake? Give an example of each in the context of testing a table.',
-      k: 'Stub returns a pre-defined response, used to replace an API call with fixed data. Mock verifies that a specific call was made with specific arguments, used to check that the delete API was called. Spy wraps the real implementation and records calls, used to verify emit was called without replacing the real function. Fake is a working alternative implementation, used to replace localStorage with an in-memory version.',
-      r: 'Uses "mock" as a generic term for all test doubles. Cannot distinguish when to use each type or why the distinction matters for test quality.'
-    },
-    {
-      q: 'What is snapshot testing? What is it good for and when does it become a liability?',
-      k: 'Snapshot testing serializes a component output to a text file and fails if the output changes. It is good for catching unintended regressions in stable components with complex output. It becomes a liability when the component changes frequently, causing developers to habitually update snapshots without actually reviewing the diff. A large snapshot that is auto-updated on every PR is worse than no test.',
-      r: 'Uses snapshots for everything and always updates them with "u" without reading the diff. The snapshots catch no real regressions.'
-    },
-    {
-      q: 'How do you write a test that verifies a row disappears after a user clicks "Delete" and the API succeeds?',
-      k: 'Render the table with mock data. Mock the delete API call to succeed. Simulate a click on the delete button. Assert that the row element is no longer in the DOM, or that the data array no longer contains the item. Do not assert on specific DOM text like the row content because that makes the test fragile to content changes.',
-      r: 'Checks the API was called but does not verify the UI actually updated. Or writes an end-to-end test for this basic behavior when a unit test suffices.'
-    },
-    {
-      q: 'How do you test that sort state resets to page 1 when the user changes the sort column? This is a regression-prone behavior.',
-      k: 'Write an integration test at the store or service level where you set an initial state with page 5 and sort by Name. Then trigger a sort change to sort by Status. Assert that pageIndex is 1. Name the test clearly so the next developer understands the invariant. Write this test the first time the regression is fixed so it never regresses again.',
-      r: 'Only tests this through the full UI. Or does not test this at all and relies on manual QA to catch the regression.'
-    },
-    {
-      q: 'What does "test isolation" mean and why does a lack of it cause flaky tests in a table test suite?',
-      k: 'Test isolation means each test starts with a clean, predictable state and does not depend on or affect other tests. In a table test suite, lack of isolation means test A changes some shared state and test B passes or fails depending on whether test A ran first. Fix by resetting all shared state in beforeEach and afterEach. Observables and Subjects must be completed and re-created per test.',
-      r: 'Shares state across tests in the same describe block. Tests pass when run in one order and fail in another. The developer updates tests based on observed behavior rather than fixing the isolation problem.'
-    },
-    {
-      q: 'How do you measure code coverage and what is a realistic coverage target for a table feature?',
-      k: 'Coverage tools like Istanbul or c8 report the percentage of statements, branches, functions, and lines executed by your tests. 80 percent is a common threshold but it is a floor, not a goal. 100 percent branch coverage on the filter and sort logic is more valuable than hitting an overall number. Coverage does not measure test quality. A test that executes code without asserting anything gives coverage but no value.',
-      r: 'Targets 100 percent overall coverage as the only goal. Writes assertion-free tests that exist only to boost the coverage number.'
-    }
-  ]
-}
-
+  { id: 1, name: "Rendering and Basic Display", level: "junior", questions: [
+    { q: "You need to display 100 records from an API in a table. Where do you put the data-fetching logic, inside the component or somewhere else, and why?", k: "A service or data layer owns fetching. The component owns display only. This follows Single Responsibility. The service becomes independently testable without a DOM.", r: "Says \"just put it in the component, it is simpler\". Cannot explain why separation matters for maintainability." },
+    { q: "The API takes 3 seconds to respond. What should the user see during that wait, and how do you implement it?", k: "Three explicit states must exist. Loading with a spinner or skeleton rows, success with data, and error with a message and retry option. A skeleton grid matches the expected table shape and feels faster than a generic spinner.", r: "Only mentions a spinner without considering error or empty states. Does not think about perceived performance." },
+    { q: "The API returns an empty array. Should you show nothing, \"No data found\", or a designed empty state? How do you decide?", k: "Always show a meaningful empty state. Distinguish two cases. \"No records exist at all\" needs a call-to-action like an \"Add\" button. \"No results match this filter\" needs a \"Clear filters\" button. Never show a blank white space.", r: "Says \"just hide the table\". Does not distinguish filter-empty from truly-empty scenarios." },
+    { q: "A date column shows \"2024-01-05T10:30:00Z\" from the API. Where and how do you format it for display?", k: "In a pure, reusable transformation function such as a pipe or utility formatter. Never format inline in the template. Must be locale-aware and timezone-aware. Can be unit-tested independently.", r: "Formats directly in the template with string operations. Does not think about locale or timezone differences." },
+    { q: "Your table has 8 columns but on a mobile screen only 3 can fit. How do you approach this?", k: "Define column priority with the designer. Hide lower-priority columns at breakpoints via CSS media queries. Options include horizontal scroll within the container, a responsive card layout on mobile, or a column toggle menu. Never just zoom out.", r: "Says \"just scroll horizontally\" without any discussion of column priority or user experience trade-offs." },
+    { q: "A row has a \"Delete\" button. The user clicks it. Walk me through what should happen before, during, and after the delete.", k: "Before. Show a confirmation dialog because this is a destructive action. During. Disable the button and show a loading indicator. After success. Remove the row, show a success toast, and move keyboard focus to the next row. After error. Restore the row, show an error message, and allow retry.", r: "Deletes immediately without confirmation. Does not handle loading or error states. Does not think about focus management." },
+    { q: "How would you implement a \"Status\" column that shows colored badges like green for Active, red for Inactive, and grey for Draft?", k: "Map the status string to a CSS class or design token using a lookup object. The badge component receives the status as input and derives its own color. Never hardcode hex colors inside the table component.", r: "Uses inline styles with hardcoded hex colors. Duplicates badge logic in every table that needs it." },
+    { q: "What is the difference between \"rendering\" and \"painting\" in the browser? Why should a frontend developer care about this distinction?", k: "Rendering builds the layout. The browser calculates the position and size of every element. Painting fills pixels with colors, shadows, and borders. Compositing assembles GPU layers. Developers care because triggering layout (\"reflow\") is the most expensive step. Changing only opacity or transform skips layout and paint entirely.", r: "Thinks rendering and painting are the same thing. Cannot explain why some CSS properties are cheaper than others." },
+    { q: "What is the difference between \"display none\" and \"visibility hidden\" in terms of how the browser renders the element?", k: "\"display none\" removes the element from the document flow entirely. The browser does not reserve space for it. \"visibility hidden\" keeps the space reserved but makes the element invisible. A third option, \"opacity 0\", keeps space and allows pointer events. Each has different layout, interaction, and accessibility implications.", r: "Thinks both options are equivalent. Cannot explain the space reservation difference." },
+    { q: "Your table row has 10 nested components. A parent state update causes all 10 to re-render even though only 1 changed. What is the root problem and what are the solutions?", k: "The framework re-renders all children by default because it cannot know which one changed. Solutions include memoization at the component level, passing only the props each child needs instead of the whole row object, and using fine-grained reactivity signals so only the affected signal subscriber re-renders.", r: "Accepts that all 10 re-render as normal behavior. Does not know about memoization or granular reactivity." },
+    { q: "What is the difference between server-side rendering, client-side rendering, and static site generation? When would you choose each for a data table?", k: "SSR renders HTML on the server for each request. Good for SEO and fast first paint but adds server load. CSR ships an empty shell and builds the DOM in the browser. Good for interactive apps with no SEO requirement. SSG pre-builds HTML at build time. Good for tables showing mostly static reference data. A data table with real-time user data is almost always CSR or SSR with client hydration.", r: "Only knows one approach. Cannot explain the trade-offs between them." },
+    { q: "What is \"layout shift\" and how can a table cause it? How do you prevent it?", k: "Layout shift happens when an element changes size or position after the initial paint, pushing other content around. A table causes it when column widths are not defined upfront and the browser recalculates widths after data loads. Prevention includes setting explicit column widths, using table-layout fixed, or reserving the table height during loading with a skeleton of the same dimensions.", r: "Does not know what layout shift is. Cannot name the CLS metric. Does not think about column width stability." },
+    { q: "Explain event delegation. Give a concrete example of how it applies to a table with 1000 clickable rows.", k: "Instead of attaching a click listener to each of the 1000 row elements, attach one listener to the table parent. When a row is clicked, the event bubbles up to the parent listener. Use event.target to identify which row was clicked. This means 1 listener instead of 1000, which is dramatically better for memory and for dynamically added rows.", r: "Attaches a listener to every row. Cannot explain how event bubbling makes the single-listener approach work." },
+    { q: "What is a Web Component? How does it relate to a table cell component you build in React, Vue, or Angular?", k: "A Web Component is a browser-native custom element using Custom Elements API, Shadow DOM, and HTML Templates. It works in any framework or no framework. Framework components compile down to framework-specific virtual DOM calls and only work within that framework. Web Components are relevant for design systems and micro-frontend scenarios where components must be consumed across different frameworks.", r: "Thinks Web Components are just another name for framework components. Cannot explain Shadow DOM isolation." },
+    { q: "A junior developer added a console.log inside a render function and it prints 200 times per second. What is happening and what does it tell you about your component architecture?", k: "The component is re-rendering far too often. This reveals a state or prop reference instability problem. Common causes include creating new object or array literals inside render, not memoizing callback functions, or a parent re-rendering on every frame and passing new object references down. This is a serious performance bug disguised as a logging issue.", r: "Says \"just remove the console.log\". Does not investigate why the component re-renders so frequently." },
+    { q: "What is the difference between \"controlled\" and \"uncontrolled\" components in the context of a search input above your table?", k: "Controlled means the component state lives in your code. You own the value and onChange handler. Every keystroke flows through your state. Uncontrolled means the DOM owns the value and you read it via a ref when needed. Controlled is the standard choice for a filter input because it lets you debounce, validate, and sync to URL params. Uncontrolled is simpler for fire-and-forget file upload inputs.", r: "Only knows controlled components. Cannot explain why uncontrolled components exist or when they are appropriate." },
+  ]},
+  { id: 2, name: "Sorting and Filtering", level: "mid", questions: [
+    { q: "User clicks a column header to sort. Should you sort client-side or server-side? What factors influence this decision?", k: "Client-side works for small datasets where all data is already loaded and instant feedback matters. Server-side is needed for large datasets with partial loads and complex multi-column sort. Never assume one answer. It depends on data volume and API design.", r: "Gives only one answer without mentioning the trade-off. Does not ask about dataset size." },
+    { q: "User types in a filter box and you call the API on each keystroke. What problem does this cause and how do you fix it?", k: "Too many API calls causes both performance waste and potential cost. Fix with debounce at 300 to 500 milliseconds. Also cancel the previous in-flight request when a new one starts using switchMap or AbortController. Debounce reduces call frequency but does not cancel already-running requests.", r: "Only mentions debounce without cancelling in-flight requests. Confuses debounce with throttle." },
+    { q: "User applies 3 filters, sorts a column, goes to page 5, then refreshes the browser. What happens and should it happen?", k: "Without persistence, all state is lost and the view resets to defaults. The best option for tables is URL query parameters because the state is bookmarkable, shareable, and survives refresh. SessionStorage works for session-only persistence. A store loses state on refresh.", r: "Accepts that state resets on refresh as fine without exploring persistence options." },
+    { q: "A search input filters across firstName, lastName, and email simultaneously on the client. How do you implement this without performance issues?", k: "Write one composed predicate function. Pre-process the search term once by lowercasing and trimming it. Check all three fields in a single pass per row. Memoize the filtered result when the input has not changed. Do not run three separate filter passes.", r: "Three separate filter passes. Recomputes on every render cycle without memoization." },
+    { q: "A \"Reset Filters\" button should restore all filters to their defaults. How do you manage this state cleanly?", k: "Define a DEFAULT_FILTER_STATE constant object at module level. On reset, spread or clone the default into the current state. Never mutate the original constant. This enables a clean dirty-check by comparing current state to the default.", r: "Mutates the default object. Uses null-checks scattered throughout instead of a single reset to a known good state." },
+    { q: "You implement multi-column sorting so rows are sorted by Status first, then by Name within the same status. How do you represent and apply this state?", k: "Use an array of sort descriptors. Each descriptor has a column name and a direction. The order of items in the array determines sort priority. Apply them in sequence using a composed comparator. The UI shows numbered indicators on column headers to communicate priority.", r: "Only handles single-column sort. Cannot explain how to represent priority between multiple sort columns." },
+    { q: "Your filter state and sort state are separate. When either changes, the table must reload. How do you combine them into a single API call without race conditions?", k: "Derive a single composed parameter object from all filter and sort state. React to any change in that derived object using a single effect or subscription. Use a cancel-and-replace strategy like switchMap so that a rapid sequence of changes results in only the last call completing.", r: "Separate watchers for filter and sort each trigger their own API calls independently, causing race conditions and double requests." },
+    { q: "What is the difference between debounce and throttle? Give one concrete example of each in a table scenario.", k: "Debounce delays execution until the input has been idle for a given duration. Used for a search box because you want to wait until the user stops typing. Throttle limits execution to at most once per time window regardless of how many triggers occur. Used for a scroll event listener during infinite scroll to avoid firing on every pixel change.", r: "Treats them as synonyms. Cannot give distinct examples for each." },
+    { q: "A filter dropdown has 500 options. Rendering all 500 as DOM elements causes the dropdown to feel sluggish. What are your options?", k: "Virtualize the dropdown list using the same virtual scroll technique as a table. Only render visible options. Alternatively use a searchable combobox where options are loaded on demand as the user types. For static lists that rarely change, pre-filter and limit the initial render to the top 20.", r: "Renders all 500 options without any optimization. Does not think about DOM cost of a large option list." },
+    { q: "How would you implement a \"saved search\" feature where users can save their current filter and sort configuration and recall it later?", k: "Serialize the filter and sort state to JSON. Store it in localStorage keyed by a user-chosen name. On load, present a dropdown of saved searches. When selected, deserialize and apply the state. Consider versioning the schema so that old saved searches remain compatible after a UI update.", r: "Cannot describe a serialization approach. Does not think about schema versioning for stored state." },
+    { q: "What is the \"derived state\" anti-pattern in the context of filter state? Give an example.", k: "Derived state anti-pattern means storing a value that can be computed from existing state and keeping it in sync manually. Example. Storing \"filteredRows\" in state separately from \"allRows\" and \"filterConfig\". When filter config changes, you must remember to also update filteredRows. The correct approach is to compute filteredRows dynamically from allRows and filterConfig.", r: "Cannot name the anti-pattern. Thinks storing computed values in state is normal and necessary." },
+    { q: "A column header that is sortable needs visual indicators for sorted ascending, sorted descending, and unsorted. How do you implement this accessibly, beyond just changing an icon?", k: "Add aria-sort attribute to the th element. Set it to \"ascending\", \"descending\", or \"none\". Screen readers announce this as part of the column header. The sort icon is visual reinforcement only. When sort changes, an aria-live region announces the new sort state to screen reader users who may not see the icon change.", r: "Only changes a CSS icon. Does not add aria-sort. Does not consider screen reader users." },
+    { q: "Your product manager wants a \"smart search\" that searches across all columns at once when the user types in one box. What are the implementation challenges?", k: "Client-side. Must build an efficient multi-field matcher that is case-insensitive and handles partial matches. Highlight matched text in results. Debounce and cancel requests. Server-side. Requires a full-text search index on the backend. Relevance scoring becomes important. The main design challenge is communicating to users which fields are being searched.", r: "Only considers implementation, not the user experience challenge of communicating what was searched across and why a result appeared." },
+    { q: "How do you test that your filter logic produces the correct subset of rows without going through a UI or API?", k: "Extract the filter logic into a pure function that takes rows and filter config as inputs and returns filtered rows as output. Write unit tests against this function with various input combinations. This approach is fast, deterministic, and does not require any component mounting or HTTP mocking.", r: "Only tests through the UI by rendering the component. Cannot explain how to test the pure logic layer independently." },
+    { q: "A user types a search term. The first result appears but is clearly wrong, and a moment later the correct result appears and replaces it. What caused this and how do you fix it?", k: "This is a race condition. Two API calls were in flight simultaneously and the older one (for a shorter query) resolved after the newer one (for the longer query). Fix by cancelling the previous request before starting a new one. Using switchMap in RxJS or AbortController with fetch handles this correctly.", r: "Accepts the flickering result as an API timing issue with no fix. Does not understand request cancellation." },
+  ]},
+  { id: 3, name: "Pagination", level: "mid", questions: [
+    { q: "What is the difference between offset-based and cursor-based pagination? When would you choose each?", k: "Offset uses page number and page size. Simple to implement but can skip or duplicate rows when data changes between page navigations. Cursor uses a stable pointer to the last seen item. No gaps in real-time data. Choose offset for admin tables with mostly static data, cursor for real-time feeds and infinite scroll.", r: "Only knows offset pagination. Cannot explain why cursor pagination exists." },
+    { q: "User is on page 5, applies a new filter. Where should they end up?", k: "Always reset to page 1. A new filter defines a completely new result set. Page 5 of the filtered set is likely empty or meaningless. This is a common bug when filter state and page state are managed independently with no connection between them.", r: "Keeps the user on page 5, which leads to an empty or wrong-looking table. Does not connect filter changes to page index reset." },
+    { q: "How would you implement infinite scroll? What are the trade-offs compared to traditional pagination?", k: "Use IntersectionObserver on a sentinel element at the bottom of the list. When the sentinel enters the viewport, load the next page and append data to the existing list. Trade-offs. Pros include smoother UX and fewer clicks. Cons include inability to jump to a specific page, difficulty sharing a specific scroll position, increased DOM size as more items load, and harder automated testing.", r: "Uses a scroll event listener directly, which fires on every pixel and has performance problems. Cannot name the trade-offs." },
+    { q: "With virtual scroll rendering 50,000 rows but only showing 20 in the DOM, how does the browser still show the correct scroll position and scrollbar height?", k: "The container element has a fixed height set to totalRows multiplied by rowHeight. This makes the scrollbar proportional to the real total. As the user scrolls, calculate the first visible row index from scrollTop divided by rowHeight. Render only those rows plus a small buffer above and below. Row height must be consistent or pre-measured.", r: "Cannot explain the fixed-height container trick. Thinks virtual scroll just hides and shows rows, which does not explain the correct scrollbar behavior." },
+    { q: "A user reports the table jumps when they navigate to the last page which has only 3 rows instead of the usual 20. What causes this?", k: "The table body shrinks on the last page, causing content below the table to jump upward. Fix by setting a minimum height on the table body equal to the full page row height. Alternatively fill remaining slots with invisible placeholder rows so the table always has the same height.", r: "Cannot identify the root cause. Suggests overflow hidden or similar CSS workarounds that do not address the layout shift." },
+    { q: "User changes \"items per page\" from 20 to 50. Walk me through all the side effects that must happen.", k: "Reset the current page index to 1. Recalculate the total page count based on the new page size and total item count. Reload data with the new page size parameter. Update URL params if state is persisted in the URL. Check that the user was not on a page that no longer exists with the new page size.", r: "Only changes the page size without resetting the page index. This causes the user to see a page that may not exist or shows unexpected results." },
+    { q: "What is the IntersectionObserver API? How is it more efficient than listening to the scroll event?", k: "IntersectionObserver is a browser API that fires a callback when a target element enters or exits the viewport, or crosses a threshold of visibility. It runs off the main thread in the browser. The scroll event fires synchronously on the main thread on every pixel of scroll movement. IntersectionObserver eliminates the need for scroll position math and is far less CPU-intensive.", r: "Does not know IntersectionObserver. Uses scroll event with getBoundingClientRect, which causes forced layout recalculations." },
+    { q: "How do you handle the case where the total item count is unknown, such as when the API does not return a total? For example, Twitter-style feeds.", k: "Use a \"has more\" boolean from the API response instead of a total count. When hasMore is true, show a \"Load more\" button or continue infinite scroll. When hasMore is false, show \"You have reached the end.\" This avoids displaying a total that cannot be computed efficiently on the server.", r: "Tries to compute the total on the client side. Cannot handle feeds where total count is unknown or expensive to compute." },
+    { q: "How would you preload the next page of data before the user actually clicks \"Next\" to make navigation feel instant?", k: "After the current page renders, immediately start fetching page N+1 in the background and store it in a cache. When the user clicks \"Next\", serve from cache if available. This trades some extra bandwidth for dramatically lower perceived latency. Use a short TTL on the cache to avoid stale data.", r: "Does not know about prefetching or prefetch strategies. Only fetches on demand after the user clicks." },
+    { q: "A table has 1 million rows. The server supports pagination but not sorting or filtering. How do you design the UX?", k: "Honest answer. This is a backend limitation and the right fix is to ask for server-side sort and filter support. If that is not possible, the UX must be designed around the constraint by clearly communicating that only the first N pages are loaded. A mandatory date range or category filter can reduce the working set to a manageable size. Never promise the user a sort on data you cannot fully load.", r: "Tries to sort and filter 1 million rows in the browser. Does not recognize the architectural constraint." },
+    { q: "What happens if the user is on page 5 and another user deletes 10 rows from page 1? What does page 5 now show?", k: "With offset pagination, the deleted rows shift all subsequent pages by a fraction of a page. Page 5 now shows different rows than before, some of which were already seen on page 4. This is a well-known offset pagination problem. Cursor-based pagination avoids this because the cursor points to a specific record, not a position.", r: "Does not recognize this as a known problem of offset pagination. Has no solution or mitigation strategy." },
+    { q: "How do you make pagination accessible to keyboard and screen reader users?", k: "Each page button and navigation control must be a real button element or anchor with descriptive aria-label. For example \"Go to page 3\" rather than just \"3\". The current page should have aria-current set to \"page\". Screen reader users need to be informed when the table content changes after a page navigation using an aria-live region.", r: "Uses div elements styled as buttons for pagination. Does not add aria-labels. Does not handle screen reader announcements after page change." },
+  ]},
+  { id: 4, name: "Selection and Row Actions", level: "mid", questions: [
+    { q: "How would you design the data structure to track which rows are selected in a multi-select table?", k: "Use a Set of IDs, not an array of full row objects. A Set has O(1) lookup and automatic deduplication. Store only IDs because objects can go stale if the server updates the row. Derive isSelected from selectedIds.has(row.id).", r: "Uses an array of full row objects, which has O(n) lookup and risks stale references when data refreshes." },
+    { q: "\"Select All on current page\" versus \"Select All 10,000 records across all pages.\" How are these fundamentally different to implement?", k: "Page selection adds all visible row IDs to the Set. This is straightforward. Global selection cannot load all IDs to memory. Instead use a flag like isAllSelected set to true, and maintain a separate Set of explicitly deselected IDs as exceptions. The API receives a flag indicating all records are selected, not a list of 10,000 IDs.", r: "Tries to fetch all 10,000 records to collect their IDs. This is a terrible UX and performance decision." },
+    { q: "User selects 50 rows and clicks \"Delete.\" The API processes them one at a time. How do you show progress and handle partial failures?", k: "Process requests in batches of 5 to 10, not 50 serial calls. Show a progress bar with the count of completed items. Track per-item status. On partial failure, show a summary listing which items succeeded and which failed. Allow the user to retry only the failed items. Do not block the entire UI during this operation.", r: "Fires 50 serial requests with no feedback. Shows only a final success or failure message with no per-item detail." },
+    { q: "A user double-clicks a cell to enter edit mode, then presses Escape. What should happen?", k: "Cancel the edit and restore the original cell value. Make no API call. Exit edit mode. Return keyboard focus to the cell so the user can continue navigating. The original value must be stored in a local variable when entering edit mode so it can be restored on cancel.", r: "Saves on Escape. Loses focus entirely after canceling. Does not track the original value for restoration." },
+    { q: "After inline edit, the row should update without a full table reload. Compare pessimistic versus optimistic update for this scenario.", k: "Pessimistic waits for API success before updating the UI. It shows the real state and is safe, but feedback feels slow. Optimistic updates the UI immediately, then rolls back on API error. It feels fast but requires rollback logic. For a low-risk edit like a name change, optimistic is fine. For financial or status changes, pessimistic is safer.", r: "Only knows one approach. Cannot explain rollback in an optimistic update scenario." },
+    { q: "The header checkbox needs to show three states. Unchecked when none are selected, checked when all are selected, and indeterminate when some are selected. How do you compute the indeterminate state?", k: "Indeterminate is true when selectedCount is greater than zero and less than totalVisibleRows. This is a computed value derived from selection state, not stored explicitly. The indeterminate state is set via the DOM property, not an HTML attribute. Setting the attribute has no visual effect in most browsers.", r: "Stores indeterminate as a separate state variable. Does not know it must be set as a DOM property, not an HTML attribute." },
+    { q: "How do you implement drag-and-drop reordering of rows in a table? What are the key browser APIs involved?", k: "Use the HTML Drag and Drop API with draggable attribute on each row. Listen to dragstart, dragover, and drop events. Track the dragged row index. On drop, reorder the data array and re-render. For a smoother experience, the Pointer Events API or a library like dnd-kit gives more control. Accessibility. Keyboard-based reordering using arrow keys must also be implemented as the mouse drag is not accessible.", r: "Does not know the draggable attribute or the drag events. Cannot address keyboard accessibility for reordering." },
+    { q: "A right-click on a table row should show a context menu with row actions. How do you implement this and what accessibility concerns does it raise?", k: "Listen to the contextmenu event. Prevent the default browser menu. Position a custom menu at the cursor coordinates. Close it on Escape, on outside click, and on scroll. Accessibility concern. Context menus are not accessible to keyboard users. Every action in the context menu must also be reachable via another keyboard path, such as a row action button or keyboard shortcut.", r: "Implements the visual context menu but has no keyboard fallback. Does not mention closing the menu on outside click or Escape." },
+    { q: "A row has a \"Duplicate\" button. After clicking, a new row appears. Where should keyboard focus go?", k: "Move focus to the newly created row or to its first interactive element such as an edit button. The user has just performed an action and should be positioned to continue working on the new item. Focus going to document body or staying on the \"Duplicate\" button is disorienting.", r: "Focus stays on the \"Duplicate\" button or is lost entirely. Does not think about focus management after DOM changes." },
+    { q: "How do you prevent accidental double-clicks from submitting a form or API request twice?", k: "Disable the button immediately after the first click, before the API call completes. Use a loading state that both disables the button and shows a spinner. Re-enable only after the API responds, whether success or error. Do not rely on debouncing alone because a debounced double-click still fires twice if the two clicks are far enough apart.", r: "Relies only on debounce or does nothing. Does not disable the button during the in-flight request." },
+    { q: "The table allows batch exporting selected rows to CSV. A cell value contains a pipe character or a newline. How do you handle this in the CSV output?", k: "Wrap every cell value in double quotes. Escape any double quotes within the value by doubling them per RFC 4180. Newlines within a cell value are allowed in CSV if the cell is double-quoted. Also handle the CSV formula injection attack by prefixing values that start with equals, plus, minus, or at sign with a single quote.", r: "Just joins values with commas and no quoting. The resulting CSV breaks when a value contains a comma or newline." },
+    { q: "What is the clipboard API and how could you use it in a table context?", k: "The Clipboard API at navigator.clipboard provides programmatic read and write access to the clipboard. In a table, you might add a \"Copy row data\" button that writes a formatted string or JSON to the clipboard. Or implement a spreadsheet-like paste behavior where pasting structured data fills multiple cells. Note that clipboard write requires a user gesture, and clipboard read requires explicit permission.", r: "Does not know the Clipboard API. Has no ideas for clipboard integration in table interactions." },
+  ]},
+  { id: 5, name: "Performance", level: "mid", questions: [
+    { q: "A table renders 1000 rows each with a formatted date. Without optimization, how many times is the format function called per render cycle? How do you reduce this?", k: "1000 times per render, and more if the function is impure and called on every change detection pass. Fix by pre-processing the formatted date when data arrives and storing the result alongside the raw data. The view then reads the pre-formatted value rather than calling the function on every render.", r: "Accepts 1000 function calls as normal behavior. Uses an impure formatting function inside the template." },
+    { q: "What is the difference between \"re-render\" and \"re-compute\"? Why does this distinction matter for table performance?", k: "Re-render means updating the DOM, which involves layout, paint, and composite. This is expensive. Re-compute means recalculating a derived JavaScript value in memory. This is cheap when memoized. The goal is to separate these two things so that only genuinely changed data triggers a DOM update. Signals and computed values exist precisely for this purpose.", r: "Treats them as synonyms. Cannot explain how memoization separates computation from DOM updates." },
+    { q: "Each of your 20 rows needs a status badge loaded from a separate API endpoint. How do you fetch these efficiently?", k: "Fetch all 20 in parallel using Promise.all or forkJoin. Never fetch sequentially in a loop, which multiplies the latency. If a batch endpoint is available, use it instead. Cache results per ID so navigating back to the same page does not re-fetch. Show a per-row loading state while fetches complete.", r: "Fetches status values one by one in a loop. Blocks the entire table or blocks all rows until every single fetch completes." },
+    { q: "A filter and sort operation on 50,000 client-side records causes the UI to freeze for 500 milliseconds. What are your options?", k: "The best option is to move filtering and sorting to the server. If that is not possible, use a Web Worker to move the computation off the main thread. Chunked processing with requestIdleCallback breaks the work into small pieces. Virtual scroll ensures you only process visible rows. Debounce the input to avoid triggering on every keystroke.", r: "Only suggests moving to server-side without knowing the other options. Does not know what a Web Worker is." },
+    { q: "What is trackBy or the \"key\" prop in list rendering? Why does it matter for a table with CRUD operations?", k: "It tells the framework how to identify each list item across renders using a stable unique ID. Without it, the framework cannot tell which item changed so it destroys and recreates all DOM nodes when the array reference changes. With it, only the specific changed item has its DOM updated. This is critical when rows contain inputs with focus, or have their own animations and state.", r: "Does not know what trackBy does. Thinks it is optional or only a performance hint with no behavioral implications." },
+    { q: "Your table uses OnPush change detection. A parent component mutates a row object directly such as row.status equals \"active\". The table does not update. Why and how do you fix it?", k: "OnPush only detects input reference changes. Mutating a property on an object does not change its reference, so Angular or the framework skips re-rendering. Fix by always creating a new object reference using spread. This is the fundamental principle behind immutable data patterns in reactive UIs.", r: "Cannot explain why mutation fails with OnPush. Suggests calling detectChanges manually everywhere, which defeats the purpose of OnPush." },
+    { q: "What are Core Web Vitals and which ones are most directly affected by a heavy data table?", k: "LCP measures the time to render the largest visible element. A table that loads slowly hurts LCP. FID or INP measures how quickly the page responds to input. A table that freezes during sort or filter hurts INP. CLS measures unexpected layout shifts. A table that grows or shrinks after data loads hurts CLS. All three are affected by a poorly implemented table.", r: "Does not know Core Web Vitals. Cannot explain the relationship between table behavior and performance metrics." },
+    { q: "What is tree shaking and how does it affect a table component library you import?", k: "Tree shaking is the build tool process of removing unused exports from the final bundle. If you import a single table component but the library exports 200 components, tree shaking ensures only the table component code is included. This requires the library to use ES module exports. CommonJS requires cannot be tree-shaken. Importing from specific paths like from \"lib/table\" rather than from \"lib\" also helps.", r: "Does not know what tree shaking is. Imports entire libraries and accepts the bundle size cost." },
+    { q: "How would you use a Web Worker to offload a heavy sort operation from the main thread?", k: "Create a Worker file that receives the rows array and sort config via postMessage, performs the sort, and posts the result back. The main thread sends data to the worker and listens for the sorted result via onmessage. During sorting, the UI remains interactive because the main thread is free. The cost is the data serialization and transfer overhead, which matters for very large arrays.", r: "Has never used Web Workers. Does not know the postMessage communication model or the serialization cost of transferring data." },
+    { q: "What is the requestAnimationFrame API and when would you use it in the context of a table?", k: "requestAnimationFrame schedules a callback to run just before the next browser paint, approximately every 16 milliseconds at 60fps. Use it when you need to batch multiple DOM reads and writes in a single frame to avoid layout thrashing. Example. During a resize event, read all column widths once, then write all updated widths in the same frame. Never alternate between reads and writes.", r: "Does not know requestAnimationFrame. Uses setTimeout zero, which can run at unpredictable times outside the animation frame cycle." },
+    { q: "How do you measure and diagnose rendering performance problems in a production table? What tools do you use?", k: "Browser DevTools Performance tab records a timeline of all rendering activity including JavaScript execution, layout, paint, and composite. React DevTools Profiler and Angular DevTools show component-level render times. Lighthouse generates a performance score with specific suggestions. Real User Monitoring tools like Sentry or DataDog measure INP and LCP from actual user sessions.", r: "Only uses console.time for measurement. Does not know browser DevTools profiling or real user monitoring tools." },
+    { q: "What is code splitting and how does it benefit a large application with a data table feature?", k: "Code splitting divides the JavaScript bundle into smaller chunks that load on demand. The data table feature, its dependencies, and its chart libraries are only downloaded when the user navigates to the page that uses them. The initial page load is faster because the browser does not need to download code for features the user may never visit.", r: "Does not know code splitting. Ships all application code in a single bundle and accepts the slow initial load." },
+    { q: "How would you implement \"lazy loading\" for images inside table rows, such as user avatar photos?", k: "Add loading=\"lazy\" to each img element. This is a native browser feature that defers image loading until the image is near the viewport. For older browser support, use IntersectionObserver to set the src attribute only when the row becomes visible. Always specify width and height attributes on images to prevent layout shift.", r: "Does not know loading=\"lazy\". Downloads all avatar images as soon as the table renders, even for rows far off screen." },
+  ]},
+  { id: 6, name: "HTTP and Data Fetching", level: "mid", questions: [
+    { q: "User types rapidly and you want to call the API only for the final value. How do you handle this without race conditions?", k: "Debounce plus cancel-and-replace. Debounce reduces call frequency. Cancel-and-replace using switchMap or AbortController ensures that when a new request starts, the previous in-flight one is cancelled. mergeMap keeps all requests running in parallel. concatMap queues them sequentially. Both are wrong for this use case.", r: "Only mentions debounce without cancellation. Confuses mergeMap and switchMap. Does not know AbortController." },
+    { q: "Your table API returns 503 errors intermittently. How do you implement automatic retry with exponential backoff?", k: "Retry with increasing delays. First retry at 1 second, second at 2 seconds, third at 4 seconds. This is base 2 raised to the attempt number, multiplied by 1000 milliseconds. Set a maximum of 3 retries. Only retry idempotent requests. For POST or DELETE, show an error and let the user retry manually to avoid unintended duplicate actions.", r: "Retries immediately in a tight loop. Retries non-idempotent requests like POST without considering the risk of duplicate side effects." },
+    { q: "Your table loads the same reference dropdown list on every page visit. How would you cache this?", k: "An in-memory cache in a singleton service using a Map keyed by URL. Set a time-to-live of perhaps 5 minutes. Serve cached data if available and not expired. Invalidate on mutation. Consider stale-while-revalidate, which serves the stale cache immediately for fast display and refreshes in the background.", r: "Has no caching strategy. Or caches with no invalidation, serving stale data indefinitely." },
+    { q: "User deletes a row. You update the UI immediately with an optimistic update, but the API returns 500. Walk through the full rollback implementation.", k: "Before mutation, take a snapshot of the current state. Apply the optimistic removal to the UI. Disable the delete button while the request is in flight. On API error, restore the snapshot to the UI state. Show an error notification that the delete failed. Re-enable the delete button so the user can retry. The snapshot taken before the action is the key to reliable rollback.", r: "Cannot describe the snapshot step. Shows an error but does not restore the deleted row to the UI." },
+    { q: "Compare polling versus WebSocket for real-time table updates. What factors guide your choice?", k: "Polling has the client request data every N seconds. It is simple, works everywhere, and is stateless, but wastes bandwidth when nothing has changed. WebSocket keeps a persistent bidirectional connection and lets the server push updates. It is efficient and truly real-time but requires infrastructure support and connection management. Server-Sent Events is a useful middle ground for unidirectional server push over standard HTTP.", r: "Only knows polling. Cannot explain the scalability cost of aggressive polling at high user counts." },
+    { q: "An HTTP interceptor adds a JWT to every request. The JWT expires mid-session. How does the interceptor handle token refresh without causing multiple parallel refresh calls?", k: "When a 401 arrives, check if a refresh is already in progress using a shared flag. If not, start the refresh and set the flag. Queue all other pending requests that arrived during the refresh. On success, replay all queued requests with the new token. On refresh failure, clear the queue and log the user out. The shared flag prevents multiple simultaneous refresh calls.", r: "Triggers a refresh call for every 401 response, causing multiple parallel refresh calls that conflict with each other." },
+    { q: "A page has two independent tables that both call the same API endpoint. How do you avoid making the same HTTP call twice?", k: "A shared service with a request deduplication layer. The first caller starts the HTTP request and stores a reference to the pending observable or promise. The second caller subscribes to the same pending request rather than starting a new one. Both callers receive the same response when it arrives. This pattern is sometimes called a request cache or in-flight request cache.", r: "Makes two independent HTTP calls. Or couples the two tables together by sharing state directly, which creates unwanted coupling." },
+    { q: "What is CORS and how does it affect your table fetching data from a different domain?", k: "CORS is a browser security mechanism that blocks requests from one origin to a different origin unless the server explicitly allows it via the Access-Control-Allow-Origin response header. Your frontend at domain A cannot call an API at domain B unless domain B includes the appropriate CORS headers. CORS is enforced by the browser, not the server. Backend developers configure CORS. Frontend developers diagnose it by reading the browser console error and checking response headers.", r: "Does not know what CORS is. Thinks adding a header in the frontend request fixes a CORS error." },
+    { q: "What is the difference between REST and GraphQL for a table that needs to fetch data with flexible column sets?", k: "REST returns a fixed response shape for each endpoint. If the table needs 5 of 20 available fields, REST still returns all 20 unless the endpoint supports field projection. GraphQL lets the client specify exactly which fields it needs in the query. This eliminates over-fetching, which matters for tables that support configurable columns where different users need different subsets of fields.", r: "Cannot explain over-fetching. Thinks REST and GraphQL are interchangeable with no relevant difference for dynamic column tables." },
+    { q: "What is the Service Worker and how could it support your table when the user goes offline?", k: "A Service Worker is a JavaScript file that runs in the background, separate from the page. It can intercept network requests and serve responses from a cache when the network is unavailable. For a table, you could cache the last loaded page of data and serve it offline with a banner saying \"Viewing cached data from [timestamp].\" Any write operations must be queued and synced when connectivity returns.", r: "Does not know Service Workers. Has no offline strategy. Shows an error when the network disappears." },
+    { q: "How do HTTP/2 and HTTP/3 affect the strategy of how many API calls you make from a table page?", k: "HTTP/1.1 has a limit of 6 parallel connections per domain, making many small requests expensive. HTTP/2 multiplexes all requests over a single connection with no practical parallel limit. This means the historic need to batch requests into one large call to avoid connection limits is less relevant under HTTP/2. However batching still reduces overhead from individual request parsing and response handling on the server.", r: "Does not know about connection multiplexing in HTTP/2. Applies HTTP/1.1 batching strategies to all situations regardless of protocol." },
+    { q: "A table makes an API call every time the user scrolls to a new row in an infinite scroll scenario. How do you avoid hammering the API?", k: "Only trigger a fetch when the user reaches a threshold, such as 80 percent of the currently loaded rows. This gives time to load the next page before the user reaches the bottom. Avoid fetching on every IntersectionObserver event if the user is scrolling very fast. Use a lock flag to prevent a second fetch from starting while one is already in progress.", r: "Triggers a fetch on every scroll event or on every IntersectionObserver callback without any throttling or lock." },
+    { q: "How do you handle a scenario where the API returns data in a different shape than what your table component expects?", k: "Create a transformation or mapping function, often called an adapter or mapper, that converts the API response shape into the shape your component needs. Keep this function in the service or data layer, not in the component. This isolates the component from API changes. When the API shape changes, only the mapper needs updating.", r: "Maps data inline inside the component template. The component becomes tightly coupled to the specific API response shape." },
+  ]},
+  { id: 7, name: "State Management", level: "mid", questions: [
+    { q: "When should table state live in the component versus a shared store? Give concrete criteria.", k: "Component-local state is correct when state is only needed in this one view, does not need to survive navigation, and is not shared with sibling components. A shared store is correct when state is needed across multiple routes, must survive navigation, is shared with non-parent components, or requires undo and redo capabilities. Default to local state and only lift it when you have a specific reason.", r: "Puts everything in a global store because it feels safer or easier. Cannot articulate the cost of unnecessary global state." },
+    { q: "Two sibling components need to share \"selected rows\" state. Neither is the parent. What are your options?", k: "Lifting state to the nearest common ancestor is the cleanest approach. A shared singleton service is also valid and simpler. A global store is overkill for this scope and adds unnecessary complexity. An event bus decouples components but makes data flow hard to trace. Start with lifting state to the parent.", r: "Only knows global stores. Cannot explain why lifting state to a parent is simpler and more traceable." },
+    { q: "A user makes 10 inline edits in a table. They click \"Undo\" 3 times. How do you implement this?", k: "Maintain a history stack as an array of past states. Each edit pushes the pre-edit state snapshot onto the stack. Undo pops the most recent snapshot and restores it as the current state. Set a maximum depth of perhaps 50 entries to prevent unbounded memory growth. An alternative is the Command pattern where each action has a paired do and undo function.", r: "Cannot explain the history stack concept. Suggests fetching the original data from the server on undo, which breaks offline scenarios and is slow." },
+    { q: "You have 5 independent tables on one page. Should they share a single store instance or each have their own?", k: "Each table needs its own scoped state instance. A single shared store would mix all five tables state together, making it hard to isolate each table logic. Use a factory pattern to create independent store instances, or scope the store to each table component injector. The tables are independent features that happen to coexist on the same page.", r: "Uses a single global store with keys like \"table1\" and \"table2\". This becomes hard to maintain and does not scale." },
+    { q: "A user s filter preferences should persist across browser restarts. What is your implementation strategy?", k: "Serialize the filter state to JSON and store it in localStorage keyed by a user-specific key. Define the schema with a version number field. On load, validate the version. If there is a mismatch, discard the stored state and reset to defaults rather than crashing on an unexpected shape. Never store sensitive data in localStorage.", r: "Stores raw objects without a version number. The application breaks silently after an update that changes the filter schema." },
+    { q: "Your store has derived state \"filteredAndSortedRows\" computed from raw rows, active filters, and sort config. How do you ensure it does not recompute unnecessarily?", k: "Use a computed signal or memoized selector. The derived value recalculates only when one of its dependencies changes. All dependencies must use immutable update patterns. If rawRows is mutated rather than replaced, computed or memoized selectors will not detect the change and will serve stale data.", r: "Recomputes the derived state on every state change regardless of whether the relevant inputs changed." },
+    { q: "What is the difference between unidirectional and bidirectional data flow? Why does most modern state management enforce unidirectional flow?", k: "Unidirectional means data flows one way. State changes produce UI renders, and UI events dispatch actions that change state. There is a single, traceable path. Bidirectional allows the UI to directly mutate state, which makes it very hard to trace where a state change originated. Unidirectional flow makes debugging predictable, enables time-travel debugging, and makes race conditions easier to reason about.", r: "Cannot explain the difference. Has no opinion on which is better or why." },
+    { q: "What is the problem with storing derived values like \"isLoading\" as a boolean that you set to true before an API call and false after? What can go wrong?", k: "Two concurrent requests will conflict. The first request sets isLoading to true. The second request also sets it to true. The first request completes and sets isLoading to false. Now the second request is still in flight but isLoading is false, hiding the loading indicator. Fix by tracking the count of pending requests or using a loading state per individual request rather than one shared boolean.", r: "Does not recognize the race condition with concurrent requests. Uses a single isLoading boolean for all requests on the page." },
+    { q: "Describe the observer or reactive pattern. How does it relate to how your table subscribes to data updates?", k: "The observer pattern defines a subject that maintains a list of observers and notifies them when its state changes. In reactive programming, an Observable is a stream that emits values over time and any number of subscribers can listen. A table subscribes to a data stream from a store or service. When new data arrives, the table re-renders. This decouples the data source from the UI.", r: "Cannot describe the observer pattern. Does not connect reactive programming concepts to the table data flow." },
+    { q: "How do you handle loading state when multiple parts of the page depend on different API calls that may complete at different times?", k: "Track loading state per request, not globally. Each section of the page shows its own loading indicator based on its own isLoading flag. Use combineLatest or Promise.allSettled if some sections need to wait for all data to arrive before rendering. Avoid a single global loading overlay that blocks the whole page when only one section is fetching.", r: "Uses one global loading spinner that blocks the entire page while any request is in flight. Other sections that already have data remain invisible during the wait." },
+    { q: "What is the difference between \"state\" and \"cache\" in a frontend application? Does your table have both?", k: "State is application data that drives the UI and changes through user interactions. Cache is a copy of remote data stored locally for performance. A table has both. UI state like selected rows, current page, and active filters is true state that only exists in the client. The rows themselves are a cache of server data. Treating cached data as permanent state leads to stale UI.", r: "Treats all data as the same kind of state. Does not distinguish server-cache data from client-owned UI state." },
+    { q: "How do you share state between a table component and a details panel that opens when a row is clicked, without making them directly dependent on each other?", k: "A shared service or store holds the \"selected row\" state. The table writes to it on row click. The details panel reads from it reactively. Neither component imports the other directly. They are both connected through the shared service, which acts as an intermediate layer. This enables each component to be tested in isolation.", r: "The table directly holds a reference to the details panel component and calls methods on it. This creates tight coupling that prevents independent testing." },
+  ]},
+  { id: 8, name: "Micro-Frontend", level: "senior", questions: [
+    { q: "Your table component is in a Remote app. The Shell lazily loads it. What must be configured for Angular DI to work without duplicate instances?", k: "Angular core, forms, and router must be declared as singleton and strictVersion true in the federation shared config. Both Shell and Remote must agree on the exact version. Two Angular instances cause broken DI, broken routing, and broken forms. This is the single most common micro-frontend integration failure.", r: "Does not know about singleton configuration. Cannot explain what having two Angular instances means in a running application." },
+    { q: "The Shell needs to pass a \"patientId\" into the Remote table. What are the communication options and what are the trade-offs?", k: "URL params are the simplest and most reliable option. They are bookmarkable, shareable, and framework-agnostic. A shared singleton service in a shared library is also valid. A custom DOM event on window is loose coupling but hard to type-check. Never import directly from one remote into another remote, as this defeats the independent deployment model.", r: "Suggests importing the Remote service directly into the Shell. This creates a hard dependency that breaks independent deployments." },
+    { q: "Remote table needs to notify the Shell when a row is selected. How do you implement cross-MFE communication without creating tight coupling?", k: "Options from least to most coupled. Browser CustomEvent dispatched on window and listened to by the Shell. A shared singleton service in a shared library that both apps import. URL state changes that the Shell observes. Direct cross-remote imports are not an option as they break the independence model.", r: "The Remote directly imports and calls Shell code. This creates a circular dependency and prevents independent deployment." },
+    { q: "Team B deploys the Remote with a breaking change to the table component interface. Team A Shell is still on the old interface. What is the failure mode?", k: "At runtime, the Shell passes props that the Remote no longer accepts, causing either a silent wrong behavior or a runtime error. Prevention requires consumer-driven contract tests where the Shell defines the expected interface and the Remote must pass those tests before deploying. Semantic versioning and communication protocols between teams are also necessary.", r: "Assumes teams will coordinate manually via chat. Does not know about contract testing." },
+    { q: "The Remote deployment fails halfway. Shell users get a blank table. How do you handle this at the Shell level?", k: "Wrap the Remote mount point in an error boundary or a try-catch around the dynamic import. Catch the module load failure and display a meaningful fallback UI such as \"This section is temporarily unavailable.\" Set up monitoring alerts on load failures. The Shell must remain fully functional even when one Remote is unavailable.", r: "Has no error handling for Remote load failure. The entire Shell application becomes unusable when one Remote fails to load." },
+    { q: "Three Remote apps all need the same JWT auth token. Where does authentication live in a micro-frontend architecture?", k: "Authentication lives in a shared library marked as singleton in federation config. The HTTP interceptor also lives in this shared library. Token refresh is handled once, either by the Shell or a dedicated auth remote. Individual remotes never implement their own auth logic. They inherit the shared interceptor by using the shared Angular HttpClient.", r: "Each Remote implements its own auth service. This results in three independent sessions, three token refresh flows, and potential conflicts between them." },
+    { q: "Your micro-frontend bundle is 2MB because it includes Angular plus all its dependencies. The Shell bundle is also 2MB for the same reason. How do you fix this?", k: "Configure Angular and other framework libraries as shared singletons in the federation config. When properly configured, Angular is only in the Shell bundle. Remotes reference the Shell copy at runtime. Verify with a bundle analyzer after the change. Each Remote bundle should shrink significantly.", r: "Accepts duplicate bundles as a normal cost of micro-frontends. Does not know about shared library configuration in federation." },
+    { q: "How would you implement feature flags across multiple micro-frontends so that a new table feature can be toggled without redeploying?", k: "A shared feature flag service in a singleton shared library. Flags are fetched from a remote configuration server at runtime. All remotes inject this shared service to check flag values. The Shell fetches flags on startup and all remotes benefit. This avoids coordinating deployments across multiple repos for a simple feature toggle.", r: "Each Remote fetches its own flags independently. This means a flag change may appear in some remotes before others, causing an inconsistent state across the page." },
+    { q: "What is a Module Federation \"remote entry\" file? What happens if it is cached by the CDN and an outdated version is served?", k: "The remote entry is a small JavaScript file that the Shell loads first to discover what the Remote exposes and where to find it. If the CDN caches a stale remote entry, the Shell loads the wrong version of the Remote. Fix by setting Cache-Control no-cache on the remote entry file specifically, or by using a version hash in the remote entry URL. The actual module chunks can be cached aggressively because they use content-hash filenames.", r: "Does not know what the remote entry file is. Has no strategy for cache invalidation of the remote entry." },
+    { q: "How would you test a Remote component integration with the Shell without running both applications simultaneously in every test?", k: "Contract testing is the answer. The Shell defines the expected interface as a test suite. The Remote runs those tests against its actual implementation. Integration tests use a minimal host application that loads the Remote in isolation. Full end-to-end tests run in CI on the real integrated environment. Contract tests are fast and stable, end-to-end tests are slow and reserved for critical paths.", r: "Only does full end-to-end testing. Slow CI pipeline and flaky tests from environment dependencies." },
+    { q: "What is the difference between \"horizontal\" and \"vertical\" micro-frontend slicing? Which approach does this codebase seem to follow?", k: "Horizontal slicing divides by UI layer, for example one remote for the navigation, another for the content area, another for the sidebar. Vertical slicing divides by business domain, for example one remote for patient overview, another for appointments. Vertical slicing is strongly preferred because each remote can be owned end-to-end by one team with full context. The codebase follows vertical slicing with PatientOverzicht, VVT, and PatientZoeken remotes.", r: "Does not know the distinction. Cannot explain why vertical slicing produces better team ownership and fewer cross-team dependencies." },
+    { q: "A shared utility library is used by three Remotes. One Remote needs to update the utility library in a breaking way. How do you manage this without breaking the other two Remotes?", k: "Semantic versioning. Release the breaking change as a new major version. The Remote that needs the new version updates its dependency. The other two Remotes stay on the previous version temporarily. This only works if Remotes bundle their own copy of the library. If the library is a shared singleton, all Remotes must update simultaneously or you use an API compatibility adapter.", r: "Updates the shared library and redeploys all three Remotes at once. Does not think about the risk of coordinated deployments or the option of versioned independent copies." },
+  ]},
+  { id: 9, name: "Accessibility and UX Polish", level: "mid", questions: [
+    { q: "A keyboard-only user must navigate the table, select rows, and trigger row actions. Walk me through all required keyboard interactions.", k: "Arrow keys navigate between cells. Space toggles row selection. Enter activates the focused action button. Tab moves between interactive elements within the table. Escape closes any open menus or dialogs. The table should have a role of grid and each row should have role of row. All interactive elements must have a visible focus indicator.", r: "Only mentions the Tab key. Does not know about arrow key navigation inside a grid role element." },
+    { q: "A screen reader user needs to know which column is sorted and in which direction. How do you implement this?", k: "Add aria-sort attribute to the th element with value \"ascending\" or \"descending\". When sort changes, an aria-live region set to \"polite\" announces the change such as \"Table sorted by Name, ascending\". The visual sort icon alone is not sufficient because screen readers do not read CSS content or background images.", r: "Relies only on the sort icon. Does not know the aria-sort attribute." },
+    { q: "After deleting a row, keyboard focus disappears and goes to the document body. Why is this bad and how do you fix it?", k: "The deleted element no longer exists in the DOM so the browser drops focus to the body, which is disorienting for keyboard and screen reader users. Fix by programmatically moving focus to the next row after the deleted one. If the last row was deleted, move focus to the previous row or to the table caption.", r: "Accepts focus loss as normal behavior. Has never considered focus management for dynamic DOM changes." },
+    { q: "Your table has 50 rows each with a \"View Details\" link. All 50 links say \"View Details.\" Why is this an accessibility problem?", k: "Screen reader users often navigate by listing all links on a page. They hear \"View Details, View Details, View Details...\" with no context about what each link goes to. Fix using aria-label to add context such as \"View Details for John Doe\" on each link. Alternatively use a visually-hidden span inside the link with the row context.", r: "Does not know that non-descriptive link text is an accessibility problem. Does not know aria-label." },
+    { q: "A user applies a filter and the table updates dynamically. A screen reader user does not know the table changed. How do you inform them?", k: "An aria-live region set to \"polite\" announces the result count after the table updates. For example \"Showing 12 results.\" Place this element near the table. Update its content after the table DOM settles. The polite setting waits for the user to finish their current announcement before reading the new one.", r: "Does not know aria-live. Only provides visual feedback. Screen reader users have no indication that the table content changed." },
+    { q: "On a 320 pixel mobile screen, your 8-column table is unusable. What are the strategic options?", k: "Priority columns. Show only essential columns agreed with the designer. Horizontal scroll inside the table container. Responsive card layout that completely transforms the row into a stacked card on mobile. Column toggle menu that lets the user choose visible columns. Each has different implementation effort and UX outcomes.", r: "Only suggests horizontal scroll. Does not discuss column priority, card layout, or user-controlled column visibility." },
+    { q: "What is a \"focus trap\" and when would you need one in the context of a table?", k: "A focus trap confines keyboard focus to a specific element subtree, preventing Tab from leaving it. You need this when a modal dialog or dropdown opens as a result of a row action. Without a focus trap, Tab moves focus out of the dialog and behind the overlay, which is confusing. When the dialog closes, focus must return to the element that triggered it.", r: "Does not know what a focus trap is. Modals and dialogs in the table allow focus to escape behind the overlay." },
+    { q: "How do you ensure your table remains usable when a user has enabled \"prefers-reduced-motion\" in their operating system?", k: "Use the CSS media query prefers-reduced-motion to disable or reduce animations. Row insertion animations, sort animations, and loading transitions should either not play or play as instant transitions. Never use motion as the sole way to communicate a state change, such as using only a spinning animation to indicate loading.", r: "Does not know prefers-reduced-motion exists. Ships animations with no accommodation for users who get motion sickness or have vestibular disorders." },
+    { q: "What is color contrast ratio and why is it important for table text and status badges?", k: "Color contrast ratio measures the difference in luminance between text and its background. WCAG AA requires at least 4.5 to 1 for normal text and 3 to 1 for large text. Status badges with light backgrounds and white text often fail this threshold. Use a tool like the Chrome DevTools color contrast checker or WebAIM Contrast Checker to verify every badge variant.", r: "Does not know WCAG contrast requirements. Chooses badge colors based on aesthetics without checking contrast ratios." },
+    { q: "A column header tooltip explains what the column contains. How do you make this tooltip accessible?", k: "Implement the tooltip as an element with role=\"tooltip\" referenced by aria-describedby on the trigger element. The tooltip must be keyboard-accessible by showing on focus, not just on hover. The tooltip text must not duplicate information already visible in the header. Never use the native title attribute as a tooltip because it is inaccessible on touch devices and screen reader behavior is inconsistent.", r: "Uses the HTML title attribute for tooltips. Does not test with keyboard or screen reader." },
+    { q: "Your table is embedded in a single-page application. When the user navigates to the table route, a screen reader does not announce anything. What is wrong?", k: "Single-page navigation does not trigger the browser to announce the new page title the way a full page reload does. Fix by using an aria-live region to announce route changes. Set the document title on each route change. Some accessibility specialists recommend moving focus to a \"main content\" skip link or the page heading on every route change.", r: "Does not know that client-side routing does not trigger page announcements. Has no strategy for screen reader route change communication." },
+    { q: "What is the \"skip to main content\" link and why would a user on your table page need it?", k: "A skip link is a visually-hidden anchor at the top of the page that becomes visible on focus. It jumps keyboard focus directly to the main content area, bypassing the navigation menu and other repeated header elements. A screen reader or keyboard user visiting a table page would otherwise have to Tab through every navigation item before reaching the table on every page load.", r: "Has never heard of or implemented a skip link. Does not recognize the cost of repetitive navigation for keyboard users." },
+  ]},
+  { id: 10, name: "Forms in Table", level: "mid", questions: [
+    { q: "A filter bar above the table is a form. Should the table update on every keystroke or wait for a \"Search\" button click?", k: "Instant update is better UX for simple text filters on small datasets. Needs debounce and request cancellation. Button-triggered is better for expensive searches, date ranges, and complex multi-field combinations. A hybrid approach debounces text inputs but triggers immediately on structured inputs like dropdown selections.", r: "Gives one answer without acknowledging the trade-offs. Does not mention debounce for real-time updates." },
+    { q: "During inline editing, \"end date\" must be after \"start date.\" How do you implement this cross-field validation?", k: "Cross-field validation must live at the FormGroup level for the row, not on individual controls. Write a custom group validator function that reads both control values and returns an error object if the condition fails. Display the group-level error in a visible area within the row.", r: "Tries to validate end date by accessing start date from a parent component or service. Bypasses the reactive form validation system entirely." },
+    { q: "A table schema comes from an API. Some columns are text inputs, some are dropdowns with options, some are date pickers. How do you build this as a dynamic form system?", k: "Map each column type string to a FormControl type at runtime using a factory function. Build the FormGroup dynamically based on the schema. Use a component registry object that maps type strings like \"text\" or \"select\" to their corresponding input components. Never hardcode column types in the template.", r: "Hard-codes all column types with a long switch statement or series of conditional templates. Cannot describe how to instantiate components dynamically from configuration." },
+    { q: "User has unsaved inline edits in the table and tries to navigate away. How do you warn them?", k: "A CanDeactivate route guard checks whether any row form is dirty. If so, it shows a confirmation dialog asking whether to leave and discard changes. If the user confirms, discard and navigate. If they cancel, stay on the page and return focus to the table. Never auto-save without explicit user intent.", r: "Allows navigation without warning, silently discarding changes. Or auto-saves on every navigation without user awareness." },
+    { q: "An async validator checks if a username in a table cell is unique via API. The user types fast. What problems arise?", k: "Many API calls fire simultaneously, one per character. The last response may not match the current input due to race conditions. Fix by debouncing inside the async validator. Cancel the previous validation call using switchMap. Show a \"checking\" state while validation runs. Cache the last result so the same value does not re-validate.", r: "Fires an API call on every character. Does not handle the race condition where an older response arrives after a newer one." },
+    { q: "How do you handle form state when the user navigates between rows in a table that uses inline editing? Each row has its own form.", k: "Each row form is a standalone reactive form scoped to that row component. Changes in row A do not affect row B. When the user leaves a row without saving, either auto-save or prompt to save. Use a dirty flag per row to show a visual indicator for rows with unsaved changes.", r: "Uses one global form for the entire table. Editing row A overwrites row B state because all rows share the same form controls." },
+    { q: "What is the difference between form-level and field-level error display? When should you use each?", k: "Field-level errors appear next to the specific input that failed. They are best for single-field violations like \"Email is required.\" Form-level or group-level errors appear near the submit button or at the top of the form. They are best for cross-field violations like \"End date must be after start date\" where neither individual field is alone at fault.", r: "Always displays errors at the field level. Cannot show a meaningful error for cross-field validation." },
+    { q: "How do you make a form input in a table cell fully keyboard accessible, including the Tab order across the entire row?", k: "By default, inputs are naturally in the Tab order. Ensure the Tab order follows the visual left-to-right column order by not using tabindex values greater than 0. After editing the last cell in a row, Tab should move to the first cell of the next row or to a \"Save row\" button. Define this intentionally rather than relying on DOM order alone.", r: "Uses positive tabindex values that disrupt the natural Tab order. Tab behavior across rows is unpredictable." },
+    { q: "A filter form has a date range picker. The user selects a start date but not an end date. Is this a valid or invalid state? How do you model this in your form?", k: "Both partial and complete selections are potentially valid depending on the business requirement. Model the date range as a FormGroup with two optional controls. A custom group validator activates only when both values are present and checks the order. The partial state with only a start date may be valid and means \"from this date onward.\" Never mark the start date invalid just because end date is empty.", r: "Marks start date as invalid immediately when end date is empty. Forces the user to enter both dates simultaneously." },
+    { q: "How do you implement an \"Add Row\" flow inline in the table? Where does the new empty row appear and what is the form lifecycle?", k: "Append a new row to the top or bottom of the table with an empty, pre-focused FormGroup. Show \"Save\" and \"Cancel\" buttons on the new row. On save, call the API and on success replace the empty row with the saved data. On cancel, remove the empty row without any API call. The new row form is separate from the existing row forms.", r: "Opens a separate add modal instead of inline creation. Or adds the row inline but the form lifecycle is the same as an existing row, causing confusion with the existing row dirty check." },
+  ]},
+  { id: 11, name: "Security", level: "senior", questions: [
+    { q: "An \"Admin Actions\" column should only be visible to admin users. Where do you enforce this, frontend, backend, or both?", k: "Both layers always. Frontend hides the column for UX so non-admin users are not confused by controls they cannot use. Backend blocks the API endpoint regardless of what the frontend sends. Frontend enforcement alone is security theater. Anyone with browser DevTools can unhide the column and call the API directly.", r: "Says \"frontend is enough.\" Does not understand that frontend code runs on the user machine and is fully controllable by that user." },
+    { q: "A user exports the table to CSV. A cell value contains \"=CMD|/C calc\". What is this attack and how do you prevent it?", k: "This is CSV injection, also known as formula injection. When opened in Excel or Google Sheets, formulas in cells can execute system commands. Prevention requires prefixing any cell value that starts with equals, plus, minus, at sign, tab, or carriage return with a single quote. Excel treats this as a text literal and does not execute it as a formula.", r: "Has never heard of CSV injection. Thinks CSV files are inherently safe because they contain no HTML or JavaScript." },
+    { q: "A search input sends user-typed text to the API. What injection risks exist on the frontend side?", k: "If the search term is reflected back in the DOM and rendered as HTML, there is an XSS risk. Always set text content using textContent or the framework binding, never innerHTML, when inserting user-supplied strings into the DOM. SQL injection and NoSQL injection are backend risks that must be mitigated with parameterized queries. Frontend sanitization is defense-in-depth but not the primary defense.", r: "Thinks frontend input sanitization prevents SQL injection on the backend. Does not understand the separation between client and server trust boundaries." },
+    { q: "Your table API returns 20 fields per row but the table displays only 5. Is this acceptable?", k: "Not acceptable. The other 15 fields are visible in browser DevTools, in proxy tools, and to anyone who inspects network traffic. Sensitive fields should not be returned at all by the API for users who do not need them. Apply the principle of least privilege to API responses. Use field projection, sparse fieldsets, or role-based response shaping on the backend.", r: "Accepts over-fetching as normal because \"the fields are not displayed in the UI.\" Does not understand that network traffic is visible." },
+    { q: "The table displays patient data that is classified as PII. What technical controls can you implement at the UI level?", k: "CSS user-select none reduces casual copy-paste but is easily bypassed. A watermark showing the logged-in username acts as a deterrent. Audit logging records who viewed what data and when. Session timeout for idle users. Masking sensitive fields by default with a toggle to reveal. These are deterrents and audit tools, not real security. Access control and data classification on the backend are the real protection.", r: "Claims that CSS user-select none prevents data leakage. Does not distinguish between deterrents and actual security controls." },
+    { q: "What is Content Security Policy and how does it protect the page that contains your table?", k: "CSP is a response header from the server that tells the browser which sources are allowed to load scripts, styles, and other resources. A strict CSP prevents injected scripts from executing even if an XSS vulnerability exists in the page. For a table with inline editing, you must ensure CSP allows your application scripts and whitelisted CDNs. Inline scripts and eval are forbidden by default in a strict CSP.", r: "Does not know what CSP is. Has never checked whether the application has CSP headers configured." },
+    { q: "A third-party chart library is used to visualize table data. How could this introduce a security risk and how do you mitigate it?", k: "Supply chain attack. If the library is compromised, malicious code runs in your application. Mitigations include pinning exact versions with a lockfile, using Subresource Integrity for CDN-loaded scripts, auditing dependencies with npm audit, monitoring for known vulnerability disclosures, and minimizing the number of third-party dependencies.", r: "Does not think about supply chain risks. Uses always-latest versions from CDN with no integrity verification." },
+    { q: "Your table allows users to customize column labels. A user enters \"<script>alert(1)</script>\" as a column label. What happens and how do you prevent it?", k: "If the label is inserted into the DOM as innerHTML, the script executes as a stored XSS attack. All other users who see this customized table become victims. Prevention requires using textContent for all user-supplied strings, never innerHTML. Framework template bindings like Angular double curly braces or React JSX expressions automatically escape HTML entities. Never use dangerouslySetInnerHTML or similar bypass methods on user-supplied content.", r: "Uses innerHTML to insert user content. Does not understand the difference between text and HTML rendering in the DOM." },
+    { q: "How do you handle HTTPS in a development environment where you need to test features that require a secure context, such as Clipboard API or Service Workers?", k: "localhost is treated as a secure context by most browsers even without HTTPS. For custom domain development, generate a local certificate using mkcert, which creates a browser-trusted certificate for localhost or a custom domain. Both certificates get stored in the local certificate store. This avoids certificate warnings during development without weakening security practices.", r: "Uses self-signed certificates that cause browser warnings. Or disables certificate validation globally in the browser, which masks real certificate problems." },
+    { q: "An API endpoint for deleting table rows accepts the row ID in the URL. What prevents a malicious user from deleting other users rows by guessing IDs?", k: "Access control enforcement on the backend. The API must verify that the authenticated user has permission to delete the specific row before executing the delete. Using unpredictable UUIDs instead of sequential integers also reduces the risk of ID enumeration but does not replace proper access control. Frontend validation of permissions is again security theater and insufficient alone.", r: "Thinks using UUIDs is the full solution. Does not mention server-side ownership validation per request." },
+    { q: "How do you safely store an authentication token for use across requests in a single-page application?", k: "Memory storage, meaning a JavaScript variable, is the most secure option. The token is gone on page refresh, which is a usability trade-off. SessionStorage survives within the tab but not across tabs. LocalStorage persists but is accessible to any JavaScript on the page, making it vulnerable to XSS. HttpOnly cookies are immune to JavaScript access and are generally recommended for sensitive tokens. Never store tokens in non-HttpOnly cookies.", r: "Always uses localStorage because it is simple. Does not understand that localStorage is readable by any JavaScript, including injected scripts." },
+  ]},
+  { id: 12, name: "Testing", level: "senior", questions: [
+    { q: "How do you test a table component sorting behavior without coupling your tests to the specific framework sorting library?", k: "Extract the sort logic as a pure function and test that function independently of any component or DOM. In the component test, mock the data source and verify the sort function is called with the correct parameters. Never test what the framework does internally. Test only the logic you wrote.", r: "Tests the framework sort library behavior. Or mounts the full table and checks DOM node order, which is slow, fragile, and framework-dependent." },
+    { q: "You want to test \"when filter changes, the API is called with the correct URL params.\" How do you structure this test?", k: "Test the HTTP service in isolation. Mock the HTTP layer using the framework HTTP testing utilities. Trigger a filter change programmatically. Assert that the HTTP request was made with the correct URL and params. Do not go through the component to test service behavior.", r: "Renders the entire component just to verify that the service calls the correct URL. The test is slow and tests too much at once." },
+    { q: "Your table has 15 different valid combinations of filter, sort, and page state. You cannot write 15 separate tests. What is the better approach?", k: "Parameterized or data-driven tests. Define an array of input and expected output pairs. Run the same assertion logic against all combinations. This forces you to extract the combination logic as a testable pure function. The test suite remains readable and adding new combinations requires only one new data entry.", r: "Writes 15 individual copy-paste tests. Or skips testing combinations entirely and only tests one happy path." },
+    { q: "How do you test an HTTP interceptor that adds auth headers and handles token refresh on 401?", k: "Three distinct test cases. First, make a request and assert the auth header is present. Second, mock a 401 response, assert a token refresh call is made, and assert the original request is replayed with the new token. Third, mock a failed refresh and assert the logout flow is triggered. Test each scenario in isolation.", r: "Cannot simulate a 401 response in a test environment. Only tests the happy path where no auth error occurs." },
+    { q: "A Micro-Frontend Remote passes all unit tests but breaks when integrated with the Shell. What testing strategy prevents this?", k: "Contract testing. The Shell defines the expected interface as a contract test suite. The Remote runs those tests against its own implementation. An integration test harness loads Shell and Remote together in a controlled environment. Full end-to-end tests cover the critical user paths across the integration. Contract tests are orders of magnitude faster than full end-to-end for catching interface mismatches.", r: "Only uses end-to-end testing for integration. No tests catch the interface mismatch before the combined deployment fails." },
+    { q: "What is the test pyramid and how does it apply to a table feature with sorting, filtering, HTTP calls, and a route guard?", k: "Unit tests form the broad base. Sort function, filter function, HTTP service methods, and guard logic. Integration tests form the middle. Component with mocked services, form with validation. End-to-end tests form the narrow top. One or two critical user flows. An inverted pyramid with mostly end-to-end tests is slow, expensive, and fragile.", r: "Only writes end-to-end tests because they test the real thing. Cannot explain why unit tests at the base are faster, more stable, and more actionable when they fail." },
+    { q: "What is the difference between a mock, a stub, a spy, and a fake? Give an example of each in the context of testing a table.", k: "Stub returns a pre-defined response, used to replace an API call with fixed data. Mock verifies that a specific call was made with specific arguments, used to check that the delete API was called. Spy wraps the real implementation and records calls, used to verify emit was called without replacing the real function. Fake is a working alternative implementation, used to replace localStorage with an in-memory version.", r: "Uses \"mock\" as a generic term for all test doubles. Cannot distinguish when to use each type or why the distinction matters for test quality." },
+    { q: "What is snapshot testing? What is it good for and when does it become a liability?", k: "Snapshot testing serializes a component output to a text file and fails if the output changes. It is good for catching unintended regressions in stable components with complex output. It becomes a liability when the component changes frequently, causing developers to habitually update snapshots without actually reviewing the diff. A large snapshot that is auto-updated on every PR is worse than no test.", r: "Uses snapshots for everything and always updates them with \"u\" without reading the diff. The snapshots catch no real regressions." },
+    { q: "How do you write a test that verifies a row disappears after a user clicks \"Delete\" and the API succeeds?", k: "Render the table with mock data. Mock the delete API call to succeed. Simulate a click on the delete button. Assert that the row element is no longer in the DOM, or that the data array no longer contains the item. Do not assert on specific DOM text like the row content because that makes the test fragile to content changes.", r: "Checks the API was called but does not verify the UI actually updated. Or writes an end-to-end test for this basic behavior when a unit test suffices." },
+    { q: "How do you test that sort state resets to page 1 when the user changes the sort column? This is a regression-prone behavior.", k: "Write an integration test at the store or service level where you set an initial state with page 5 and sort by Name. Then trigger a sort change to sort by Status. Assert that pageIndex is 1. Name the test clearly so the next developer understands the invariant. Write this test the first time the regression is fixed so it never regresses again.", r: "Only tests this through the full UI. Or does not test this at all and relies on manual QA to catch the regression." },
+    { q: "What does \"test isolation\" mean and why does a lack of it cause flaky tests in a table test suite?", k: "Test isolation means each test starts with a clean, predictable state and does not depend on or affect other tests. In a table test suite, lack of isolation means test A changes some shared state and test B passes or fails depending on whether test A ran first. Fix by resetting all shared state in beforeEach and afterEach. Observables and Subjects must be completed and re-created per test.", r: "Shares state across tests in the same describe block. Tests pass when run in one order and fail in another. The developer updates tests based on observed behavior rather than fixing the isolation problem." },
+    { q: "How do you measure code coverage and what is a realistic coverage target for a table feature?", k: "Coverage tools like Istanbul or c8 report the percentage of statements, branches, functions, and lines executed by your tests. 80 percent is a common threshold but it is a floor, not a goal. 100 percent branch coverage on the filter and sort logic is more valuable than hitting an overall number. Coverage does not measure test quality. A test that executes code without asserting anything gives coverage but no value.", r: "Targets 100 percent overall coverage as the only goal. Writes assertion-free tests that exist only to boost the coverage number." },
+  ]},
 ];
+// AUTO-GENERATED-GROUPS-END
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EXCEL XML GENERATION (Office Open XML, zero dependencies)
@@ -1127,7 +468,7 @@ fs.writeFileSync(`${OUT}/xl/worksheets/sheet3.xml`, sheet(figmaRows));
 
 // ─── PowerShell zip script ────────────────────────────────────────────────────
 
-const destXlsx = path.join(__dirname, 'Frontend-Interview-Framework.xlsx').replace(/\\/g, '\\\\');
+const destXlsx = path.join(__dirname, 'Frontend-Interview.xlsx').replace(/\\/g, '\\\\');
 const srcDir   = OUT.replace(/\\/g, '\\\\');
 
 const ps = `

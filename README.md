@@ -61,33 +61,29 @@ The question bank uses precise technical vocabulary. With a junior candidate, yo
 
 ## Interview Board UI
 
-Open `interview-board.html` in any browser. No server, no installation, no internet connection required.
+Open the board via the local server at **http://localhost:3001/interview-board.html**.
 
 The board lets you:
 
-. **Browse all 150 questions** grouped by category with level indicators.
-. **Star questions** you want to focus on. Stars persist in your browser between sessions.
-. **Highlight rows** during the interview by clicking them. Click again to clear.
-. **Add custom questions** to any group. Your additions are saved locally in the browser.
-. **Filter by group or level** to quickly find questions appropriate for the candidate in front of you.
-. **Export your starred set** as a plain text list to paste into notes or a doc.
+- **Browse all 150+ questions** grouped by category with level indicators.
+- **Star questions** you want to focus on. Stars persist across sessions.
+- **Highlight rows** during the interview by clicking the card body. The highlighted row turns yellow in the UI and is also written as a yellow row in `Frontend-Interview.xlsx`.
+- **Add custom questions** to any group. Additions are saved to the Excel file.
+- **Filter by group or level** to quickly find questions appropriate for the candidate.
+- **Export your starred set** as plain text to paste into notes.
+- **Sync to generator** — click the "Sync to generator" button to write the current question bank (including any custom additions) back into `generate-excel.js` so it can be committed to git.
 
-To reset all stars and custom questions, click "Clear Session" in the top right of the board.
+To reset all stars, highlights, and custom questions, click "Clear Session" in the header.
+
+> **Offline mode.** If the server is not running, the board falls back to the hardcoded question list and saves state to browser localStorage only. Yellow highlighting in Excel will not work in offline mode.
 
 ---
 
 ## Excel File
 
-### How to generate
+### Output file
 
-Requirements. Node.js v16 or later. No npm packages needed.
-
-```bash
-node generate-excel.js
-.\zip.ps1
-```
-
-Output file. `Frontend-Interview-Framework.xlsx` in this folder.
+`Frontend-Interview.xlsx` — created and maintained by the local server.
 
 ### Sheet contents
 
@@ -95,10 +91,71 @@ Output file. `Frontend-Interview-Framework.xlsx` in this folder.
 Summary of all 12 groups with target level, question count, and key topics.
 
 **Sheet 2. All Questions and Answers.**
-Every question with "Key Points to Evaluate" and "Red Flags to Watch For" columns. Print this sheet and keep it face-down during the interview. Refer to it when scoring after the session rather than during.
+Every question with "Key Points to Evaluate" and "Red Flags to Watch For" columns. Rows highlighted in the UI board appear yellow in this sheet. Print this sheet and keep it face-down during the interview.
 
 **Sheet 3. Figma and Design Resources.**
 Free Figma Community links for each group with direct URLs and usage notes.
+
+**Sheet 4. InterviewState** (hidden, managed by server).
+Stores stars, highlights, and custom questions as JSON so state survives server restarts.
+
+---
+
+## Developer Setup
+
+Requirements: Node.js v18 or later, npm.
+
+### First-time setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Generate Frontend-Interview.xlsx from the question bank
+node generate-excel.js
+node create-xlsx.js
+
+# 3. Start the local server
+node server.js
+```
+
+Open **http://localhost:3001/interview-board.html** in your browser.
+
+### Daily use
+
+```bash
+node server.js
+```
+
+Open **http://localhost:3001/interview-board.html**.
+
+The green **🟢 Server :3001** badge in the header confirms the server is connected. If the badge is missing, the board runs in offline mode (no Excel sync).
+
+### Before committing
+
+1. Click **"Sync to generator"** in the board header — this rewrites the `groups` array in `generate-excel.js` with the latest questions (including any custom ones you added).
+2. Commit both `generate-excel.js` **and** `Frontend-Interview.xlsx`.
+
+### New team member after `git pull`
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Rebuild xlsx from the latest question bank in generate-excel.js
+node generate-excel.js
+node create-xlsx.js
+
+# 3. Start the server
+node server.js
+```
+
+### How highlighting works
+
+- **Click the card body** (the question text area, not ⭐) in the board → card turns yellow in UI.
+- The server immediately writes a yellow fill to that row in `Frontend-Interview.xlsx`.
+- **Excel must be closed** when the server writes, otherwise the file is locked and the write fails silently.
+- Reopen Excel after highlighting to see the yellow rows.
 
 ---
 
@@ -131,7 +188,7 @@ Tech Lead. Full Group 8, Group 12, plus an open architecture discussion using th
 
 ---
 
-## Figma Setup (No Design Experience Needed)
+## Figma Setup (In Development)
 
 The simplest path is **FigJam** at figma.com/figjam.
 
@@ -147,9 +204,14 @@ For a more polished design reference, open the **Material 3 Design Kit** at `fig
 
 ## Regenerating After Edits
 
-Edit the `groups` array in `generate-excel.js` to add, remove, or modify questions. Then run the two commands above again. The PowerShell zip script regenerates automatically.
+To add or edit questions directly in code, modify the `groups` array in `generate-excel.js` between the `AUTO-GENERATED-GROUPS-START` and `AUTO-GENERATED-GROUPS-END` markers, then run:
 
-To add questions to the interactive board without regenerating Excel, use the "Add Question" button directly in `interview-board.html`. Those additions are stored in the browser and do not require any file changes.
+```bash
+node create-xlsx.js
+node server.js
+```
+
+Alternatively, use the **"Add Question"** button in the board UI and then click **"Sync to generator"** to push the changes back to `generate-excel.js`.
 
 ---
 

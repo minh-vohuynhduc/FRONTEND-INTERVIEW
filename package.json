@@ -1,0 +1,14 @@
+{
+  "name": "frontend-interview",
+  "version": "1.0.0",
+  "description": "Frontend Interview Board — Question Bank with Excel sync",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "generate": "node generate-excel.js && node create-xlsx.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "exceljs": "^4.4.0"
+  }
+}

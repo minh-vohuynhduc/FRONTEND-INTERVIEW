@@ -224,8 +224,7 @@
     font-size: 12px; color: var(--accent); cursor: pointer;
     user-select: none;
   }
-  .q-toggle .arrow { transition: transform .2s; display: inline-block; }
-  .q-toggle.open .arrow { transform: rotate(90deg); }
+  .q-toggle .arrow { display: inline-block; }
 
   .q-details { display: none; padding: 0 14px 14px 50px; }
   .q-details.open { display: block; }
@@ -313,6 +312,8 @@
   <div class="header-right">
     <button class="btn btn-ghost" onclick="openExport()">Export starred</button>
     <button class="btn btn-ghost" onclick="openAddModal(null)">Add question</button>
+    <button class="btn btn-ghost" id="sync-btn" onclick="syncGenerator()">Sync to generator</button>
+    <span id="server-badge" style="display:none;align-items:center;gap:4px;font-size:11px;background:#16a34a;padding:4px 10px;border-radius:20px;color:#fff;font-weight:600;">🟢 Server :3001</span>
     <button class="btn btn-danger" onclick="clearSession()">Clear session</button>
   </div>
 </div>
@@ -389,7 +390,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
 // ─────────────────────────────────────────────────────────────────────────────
-const GROUPS = [
+let GROUPS = [
   { id: 1, name: "Rendering and Basic Display", level: "junior", questions: [
     { q: "You need to display 100 records from an API in a table. Where do you put the data-fetching logic and why?", k: "A service or data layer owns fetching. The component owns display only. This follows Single Responsibility. The service is independently testable without a DOM.", r: "Says just put it in the component. Cannot explain why separation matters." },
     { q: "The API takes 3 seconds to respond. What should the user see during that wait and how do you implement it?", k: "Three explicit states. Loading with skeleton rows, success with data, and error with a retry option. Skeleton matches the expected table shape and feels faster than a generic spinner.", r: "Only mentions a spinner without considering error or empty states." },
@@ -530,6 +531,8 @@ let highlights = new Set(JSON.parse(localStorage.getItem(LS_HL)    || '[]'));
 let customs    = JSON.parse(localStorage.getItem(LS_CUSTOM) || '{}');
 // customs = { [groupId]: [{ q, k, r }] }
 
+let serverAvailable = false;
+
 let currentFilter = { group: '', level: '', search: '', starredOnly: false };
 let activeGroupId = null;
 
@@ -540,6 +543,13 @@ function save() {
   localStorage.setItem(LS_STARS,  JSON.stringify([...stars]));
   localStorage.setItem(LS_HL,     JSON.stringify([...highlights]));
   localStorage.setItem(LS_CUSTOM, JSON.stringify(customs));
+  if (serverAvailable) {
+    fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stars: [...stars], highlights: [...highlights], customs })
+    }).catch(() => { serverAvailable = false; });
+  }
 }
 
 function qid(groupId, idx) { return `g${groupId}_q${idx}`; }
@@ -675,7 +685,7 @@ function buildQCard(q, g) {
       ${q._custom ? `<button class="q-delete-btn" title="Delete" data-id="${id}" data-gid="${g.id}">✕</button>` : ''}
     </div>
     <div class="q-toggle" data-id="${id}">
-      <span class="arrow">▶</span> Show answer guide
+      Show answer guide
     </div>
     <div class="q-details" data-id="${id}">
       <div class="q-block key">
@@ -713,8 +723,7 @@ function buildQCard(q, g) {
     const isOpen = details.classList.contains('open');
     toggle.classList.toggle('open', !isOpen);
     details.classList.toggle('open', !isOpen);
-    toggle.querySelector('.arrow').textContent = isOpen ? '▶' : '▼';
-    toggle.childNodes[1].textContent = isOpen ? ' Show answer guide' : ' Hide answer guide';
+    toggle.childNodes[0].textContent = isOpen ? ' Show answer guide' : ' Hide answer guide';
   });
 
   // Delete custom
@@ -857,10 +866,34 @@ function clearSession() {
   renderAll();
 }
 
+async function syncGenerator() {
+  const btn = document.getElementById('sync-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Syncing...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/sync-generator', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const d = await r.json();
+    if (d.ok) {
+      btn.textContent = '✓ Synced!';
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+    } else {
+      alert('Sync failed: ' + d.error);
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    alert('Server not available');
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────────────────────
-(function init() {
+(async function init() {
+  // 1. Populate filter + render immediately from hardcoded GROUPS + localStorage
   const groupSel = document.getElementById('filterGroup');
   GROUPS.forEach(g => {
     const o = document.createElement('option');
@@ -869,6 +902,41 @@ function clearSession() {
     groupSel.appendChild(o);
   });
   renderAll();
+
+  // 2. Try connecting to server (non-blocking, 3s timeout)
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000);
+    const data = await fetch('/api/data', { signal: ctrl.signal }).then(r => {
+      if (!r.ok) throw new Error('Server error');
+      return r.json();
+    });
+    clearTimeout(timer);
+    serverAvailable = true;
+
+    // Load authoritative data from server
+    if (data.groups && data.groups.length) {
+      GROUPS = data.groups;
+    }
+    stars      = new Set(data.stars      || []);
+    highlights = new Set(data.highlights || []);
+    customs    = {};
+    (data.groups || []).forEach(g => { if (g.customs && g.customs.length) customs[g.id] = g.customs; });
+
+    // Refresh group filter with server data
+    while (groupSel.options.length > 1) groupSel.remove(1);
+    GROUPS.forEach(g => {
+      const o = document.createElement('option');
+      o.value = g.id;
+      o.textContent = `Group ${g.id}. ${g.name}`;
+      groupSel.appendChild(o);
+    });
+    document.getElementById('server-badge').style.display = 'inline-flex';
+    renderAll();
+  } catch (e) {
+    // Offline mode: use hardcoded GROUPS + localStorage
+    document.getElementById('server-badge').style.display = 'none';
+  }
 })();
 </script>
 </body>
