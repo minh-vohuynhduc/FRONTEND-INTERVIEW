@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Interview Board</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --border: #dde3ee;
+    --primary: #1a3a5c;
+    --primary-light: #eef3fb;
+    --accent: #2563eb;
+    --star: #f59e0b;
+    --highlight: #fef9c3;
+    --highlight-border: #fcd34d;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --green: #16a34a;
+    --text: #1e293b;
+    --muted: #64748b;
+    --tag-junior: #dcfce7;
+    --tag-junior-text: #15803d;
+    --tag-mid: #dbeafe;
+    --tag-mid-text: #1d4ed8;
+    --tag-senior: #f3e8ff;
+    --tag-senior-text: #7c3aed;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--primary);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: .3px; }
+  .header-meta { font-size: 12px; opacity: .7; margin-top: 2px; }
+  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px;
+    font-weight: 500; cursor: pointer; border: none; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-ghost { background: rgba(255,255,255,.15); color: #fff; }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-outline { background: #fff; color: var(--primary); border: 1px solid var(--border); }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+  }
+  .toolbar label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .toolbar select, .toolbar input[type=search] {
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; color: var(--text); background: #fff; outline: none;
+    min-width: 0;
+  }
+  .toolbar select:focus, .toolbar input[type=search]:focus { border-color: var(--accent); }
+  .toolbar input[type=search] { width: 220px; }
+  .toolbar-spacer { flex: 1; }
+  .counter { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .counter strong { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; gap: 0; height: calc(100vh - 108px); overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .sidebar-group {
+    padding: 6px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 0;
+    transition: background .12s;
+    font-size: 13px;
+  }
+  .sidebar-group:hover { background: var(--primary-light); }
+  .sidebar-group.active { background: var(--primary-light); font-weight: 600; color: var(--accent); }
+  .sidebar-group-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .sidebar-group.active .sidebar-group-num { background: var(--accent); }
+  .sidebar-group-name { flex: 1; line-height: 1.3; }
+  .sidebar-count { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  /* ── GROUP SECTION ── */
+  .group-section { margin-bottom: 32px; }
+  .group-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .group-badge {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .group-title { font-size: 15px; font-weight: 700; flex: 1; }
+  .level-tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 12px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .level-junior { background: var(--tag-junior); color: var(--tag-junior-text); }
+  .level-mid { background: var(--tag-mid); color: var(--tag-mid-text); }
+  .level-senior { background: var(--tag-senior); color: var(--tag-senior-text); }
+  .group-add-btn {
+    padding: 5px 10px; border-radius: 6px; font-size: 12px;
+    background: var(--primary-light); color: var(--accent);
+    border: 1px dashed var(--accent); cursor: pointer;
+    font-weight: 500; white-space: nowrap;
+  }
+  .group-add-btn:hover { background: #dbeafe; }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .q-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: transparent;
+    transition: background .15s;
+  }
+  .q-card:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37,99,235,.1); }
+  .q-card.highlighted { background: var(--highlight); border-color: var(--highlight-border); }
+  .q-card.highlighted::before { background: var(--star); }
+  .q-card.starred::before { background: var(--accent); }
+
+  .q-card-header {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px 10px;
+  }
+  .star-btn {
+    flex-shrink: 0; width: 26px; height: 26px;
+    border: none; background: transparent; cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; transition: background .12s;
+    margin-top: 1px;
+  }
+  .star-btn:hover { background: #fef3c7; }
+  .star-btn .icon { opacity: .3; transition: opacity .15s; }
+  .q-card.starred .star-btn .icon { opacity: 1; }
+  .q-card.highlighted .star-btn .icon { opacity: 1; }
+
+  .q-text {
+    flex: 1; font-size: 13.5px; line-height: 1.55; font-weight: 500;
+  }
+  .q-custom-badge {
+    flex-shrink: 0; font-size: 10px; padding: 2px 7px;
+    background: #fef3c7; color: #92400e; border-radius: 10px;
+    font-weight: 600; align-self: flex-start; margin-top: 3px;
+  }
+  .q-delete-btn {
+    flex-shrink: 0; width: 22px; height: 22px;
+    border: none; background: transparent; cursor: pointer;
+    font-size: 14px; color: var(--muted); border-radius: 4px;
+    align-self: flex-start; margin-top: 2px; display: none;
+    align-items: center; justify-content: center;
+  }
+  .q-card:hover .q-delete-btn { display: flex; }
+  .q-delete-btn:hover { color: var(--red); background: var(--red-bg); }
+
+  /* ── EXPANDABLE ANSWER ── */
+  .q-toggle {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 14px 10px 50px;
+    font-size: 12px; color: var(--accent); cursor: pointer;
+    user-select: none;
+  }
+  .q-toggle .arrow { transition: transform .2s; display: inline-block; }
+  .q-toggle.open .arrow { transform: rotate(90deg); }
+
+  .q-details { display: none; padding: 0 14px 14px 50px; }
+  .q-details.open { display: block; }
+
+  .q-block {
+    margin-bottom: 10px; padding: 10px 12px;
+    border-radius: 6px; font-size: 12.5px; line-height: 1.6;
+  }
+  .q-block-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; margin-bottom: 5px;
+  }
+  .q-block.key { background: #f0fdf4; border-left: 3px solid var(--green); }
+  .q-block.key .q-block-label { color: var(--green); }
+  .q-block.red { background: var(--red-bg); border-left: 3px solid var(--red); }
+  .q-block.red .q-block-label { color: var(--red); }
+
+  /* ── ADD QUESTION MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 10px; padding: 24px;
+    width: 560px; max-width: 95vw; max-height: 85vh;
+    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  }
+  .modal h2 { font-size: 16px; margin-bottom: 16px; color: var(--primary); }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--muted); }
+  .form-group select,
+  .form-group textarea {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; font-family: inherit; outline: none; resize: vertical;
+  }
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { min-height: 80px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+  /* ── EXPORT PANEL ── */
+  .export-panel {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .export-panel.open { display: flex; }
+  .export-box {
+    background: #fff; border-radius: 10px; padding: 24px;
+    width: 640px; max-width: 95vw; max-height: 85vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .export-box h2 { font-size: 16px; color: var(--primary); }
+  .export-box textarea {
+    flex: 1; min-height: 320px; width: 100%;
+    padding: 12px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 12px; font-family: monospace; resize: vertical; outline: none;
+  }
+  .export-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header h1" style="font-size:17px;font-weight:700">Frontend Interview Board</div>
+    <div class="header-meta">Click a card to expand. Star questions you plan to use. Add custom questions per group.</div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost" onclick="openExport()">Export starred</button>
+    <button class="btn btn-ghost" onclick="openAddModal(null)">Add question</button>
+    <button class="btn btn-danger" onclick="clearSession()">Clear session</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <label>Group</label>
+  <select id="filterGroup" onchange="applyFilters()">
+    <option value="">All groups</option>
+  </select>
+  <label>Level</label>
+  <select id="filterLevel" onchange="applyFilters()">
+    <option value="">All levels</option>
+    <option value="junior">Junior</option>
+    <option value="mid">Mid</option>
+    <option value="senior">Senior</option>
+  </select>
+  <label>Search</label>
+  <input type="search" id="filterSearch" placeholder="Search questions..." oninput="applyFilters()">
+  <div class="toolbar-spacer"></div>
+  <div class="counter" id="counter"></div>
+  <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+    <input type="checkbox" id="showStarred" onchange="applyFilters()">
+    <span>Starred only</span>
+  </label>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<!-- ADD QUESTION MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add Custom Question</h2>
+    <div class="form-group">
+      <label>Group</label>
+      <select id="addGroupSelect"></select>
+    </div>
+    <div class="form-group">
+      <label>Question</label>
+      <textarea id="addQuestion" placeholder="Type the interview question here..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Key Points to Evaluate</label>
+      <textarea id="addKeyPoints" placeholder="What reasoning or mindset should a good answer reveal..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Red Flags</label>
+      <textarea id="addRedFlags" placeholder="What patterns indicate shallow or incorrect thinking..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveQuestion()">Save Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT PANEL -->
+<div class="export-panel" id="exportPanel">
+  <div class="export-box">
+    <h2>Starred Questions. Copy to your notes.</h2>
+    <textarea id="exportText" readonly></textarea>
+    <div class="export-actions">
+      <button class="btn btn-outline" onclick="closeExport()">Close</button>
+      <button class="btn btn-accent" onclick="copyExport()">Copy to clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────────────
+const GROUPS = [
+  { id: 1, name: "Rendering and Basic Display", level: "junior", questions: [
+    { q: "You need to display 100 records from an API in a table. Where do you put the data-fetching logic and why?", k: "A service or data layer owns fetching. The component owns display only. This follows Single Responsibility. The service is independently testable without a DOM.", r: "Says just put it in the component. Cannot explain why separation matters." },
+    { q: "The API takes 3 seconds to respond. What should the user see during that wait and how do you implement it?", k: "Three explicit states. Loading with skeleton rows, success with data, and error with a retry option. Skeleton matches the expected table shape and feels faster than a generic spinner.", r: "Only mentions a spinner without considering error or empty states." },
+    { q: "The API returns an empty array. Should you show nothing or a designed empty state?", k: "Always show a meaningful empty state. Distinguish two cases. No records exist at all needs a call-to-action. No results match this filter needs a Clear filters button.", r: "Says just hide the table. Does not distinguish filter-empty from truly-empty." },
+    { q: "A date column shows raw ISO string from the API. Where and how do you format it?", k: "In a pure reusable transformation function. Never format inline in the template. Must be locale-aware and timezone-aware. Can be unit-tested independently.", r: "Formats directly in the template with string operations. Does not think about locale." },
+    { q: "Your table has 8 columns but on mobile only 3 can fit. How do you approach this?", k: "Define column priority with the designer. Hide lower-priority columns at breakpoints. Options include horizontal scroll, responsive card layout on mobile, or a column toggle menu.", r: "Says just scroll horizontally without any discussion of column priority." },
+    { q: "A row has a Delete button. Walk me through what should happen before, during, and after the delete.", k: "Before. Confirmation dialog because this is destructive. During. Disable button and show loading. After success. Remove row, show toast, move focus. After error. Restore row, show error, allow retry.", r: "Deletes immediately without confirmation. Does not handle loading or error states." },
+    { q: "What is the difference between display none and visibility hidden in terms of how the browser renders the element?", k: "display none removes the element from document flow entirely. visibility hidden keeps space reserved but makes it invisible. opacity zero keeps space and allows pointer events. Each has different layout and accessibility implications.", r: "Thinks both options are equivalent. Cannot explain the space reservation difference." },
+    { q: "A junior developer added a console.log inside a render function and it prints 200 times per second. What does this tell you?", k: "The component is re-rendering far too often. Common causes. new object literals inside render, unmemoized callback functions, or a parent re-rendering on every frame passing new references down. This is a performance bug disguised as a logging issue.", r: "Says just remove the console.log without investigating why re-renders occur so frequently." },
+    { q: "What is the difference between server-side rendering, client-side rendering, and static site generation for a data table?", k: "SSR renders HTML on the server per request. Good for SEO and fast first paint. CSR ships an empty shell and builds the DOM in the browser. Good for interactive apps. SSG pre-builds at build time. Good for mostly static reference data. A table with real-time user data is almost always CSR or SSR with hydration.", r: "Only knows one approach. Cannot explain the trade-offs between them." },
+    { q: "What is layout shift and how can a table cause it?", k: "Layout shift happens when an element changes size or position after the initial paint, pushing other content around. A table causes it when column widths are not defined upfront and the browser recalculates widths after data loads. Fix. set explicit column widths, use table-layout fixed, or reserve table height during loading with a skeleton.", r: "Does not know what layout shift is. Cannot name the CLS metric." },
+    { q: "Explain event delegation and give a concrete example applying it to a table with 1000 clickable rows.", k: "Attach one listener to the table parent instead of 1000 row listeners. When a row is clicked, the event bubbles up. Use event.target to identify which row was clicked. 1 listener instead of 1000 is better for memory and for dynamically added rows.", r: "Attaches a listener to every row. Cannot explain how event bubbling makes the single-listener approach work." },
+    { q: "What is a Web Component? How does it relate to a table cell component you build in React, Vue, or Angular?", k: "A Web Component is a browser-native custom element using Custom Elements API, Shadow DOM, and HTML Templates. It works in any framework. Framework components compile to framework-specific virtual DOM calls. Web Components matter for design systems and micro-frontend scenarios where components must work across different frameworks.", r: "Thinks Web Components are just another name for framework components. Cannot explain Shadow DOM isolation." },
+    { q: "What is the difference between controlled and uncontrolled components for a search input above your table?", k: "Controlled. your code owns the value and onChange handler. Every keystroke flows through your state. Uncontrolled. the DOM owns the value and you read it via a ref when needed. Controlled is standard for filter inputs because it lets you debounce, validate, and sync to URL params.", r: "Only knows controlled components. Cannot explain when uncontrolled components are appropriate." }
+  ]},
+  { id: 2, name: "Sorting and Filtering", level: "mid", questions: [
+    { q: "User clicks a column header to sort. Should you sort client-side or server-side? What factors matter?", k: "Client-side works for small datasets where all data is already loaded. Server-side is needed for large datasets with partial loads. Never assume one answer. It depends on data volume and API capabilities.", r: "Gives only one answer without mentioning the trade-off. Does not ask about dataset size." },
+    { q: "User types in a filter box and you call the API on each keystroke. What problem does this cause?", k: "Too many API calls, performance waste, and potential cost. Fix with debounce at 300 to 500 milliseconds. Also cancel the previous in-flight request using switchMap or AbortController. Debounce reduces call frequency but does not cancel already-running requests.", r: "Only mentions debounce without cancelling in-flight requests. Confuses debounce with throttle." },
+    { q: "User applies filters, sorts, goes to page 5, then refreshes. What happens and what should happen?", k: "Without persistence all state is lost. URL query parameters are best. They are bookmarkable, shareable, and survive refresh. SessionStorage works for session-only persistence. A store loses state on refresh.", r: "Accepts that state resets on refresh as fine without exploring persistence options." },
+    { q: "A search filters across firstName, lastName, and email simultaneously on the client. How do you implement without performance issues?", k: "One composed predicate function. Pre-process search term once. Check all three fields in a single pass per row. Memoize the filtered result when the input has not changed.", r: "Three separate filter passes. Recomputes on every render cycle without memoization." },
+    { q: "A Reset Filters button should restore all filters to defaults. How do you manage this state cleanly?", k: "Define a DEFAULT_FILTER_STATE constant. On reset, spread or clone the default into current state. Never mutate the original constant. This enables a clean dirty-check by comparing current state to the default.", r: "Mutates the default object. Uses null-checks scattered throughout instead of a single clean reset." },
+    { q: "You implement multi-column sorting sorted by Status first then by Name. How do you represent this state?", k: "Array of sort descriptors. Each has a column name and direction. The order of items determines priority. Apply them in sequence with a composed comparator. UI shows numbered indicators on column headers.", r: "Only handles single-column sort. Cannot explain how to represent priority between multiple sort columns." },
+    { q: "Your filter state and sort state are separate. When either changes the table must reload. How do you combine without race conditions?", k: "Derive a single composed parameter object from all filter and sort state. React to any change using a single effect. Use cancel-and-replace like switchMap so a rapid sequence results in only the last call completing.", r: "Separate watchers each trigger independent API calls, causing race conditions and double requests." },
+    { q: "What is the difference between debounce and throttle? Give one concrete example of each in a table scenario.", k: "Debounce delays execution until input has been idle for a given duration. Used for a search box. Throttle limits execution to at most once per time window. Used for a scroll event listener during infinite scroll to avoid firing on every pixel change.", r: "Treats them as synonyms. Cannot give distinct examples for each." },
+    { q: "A filter dropdown has 500 options. Rendering all 500 DOM elements causes the dropdown to feel sluggish. What are your options?", k: "Virtualize the dropdown list using the same virtual scroll technique as a table. Alternatively use a searchable combobox where options load on demand. For static lists rarely changing, pre-filter and limit the initial render to the top 20.", r: "Renders all 500 options without any optimization. Does not think about DOM cost of a large option list." },
+    { q: "How would you implement a saved search feature where users save their current filter and sort configuration?", k: "Serialize the filter and sort state to JSON. Store in localStorage keyed by a user-chosen name. On load, present a dropdown of saved searches. When selected, deserialize and apply the state. Consider versioning the schema so old saved searches remain compatible after a UI update.", r: "Cannot describe a serialization approach. Does not think about schema versioning for stored state." },
+    { q: "Describe the derived state anti-pattern in the context of filter state.", k: "Storing a value that can be computed from existing state and keeping it in sync manually. Example. Storing filteredRows in state separately from allRows and filterConfig. When filter config changes, you must remember to also update filteredRows. The correct approach is to compute filteredRows dynamically from allRows and filterConfig.", r: "Cannot name the anti-pattern. Thinks storing computed values in state is normal and necessary." },
+    { q: "A user types a search term. The first result appears but is wrong, then a moment later the correct result replaces it. What caused this?", k: "Race condition. Two API calls were in flight and the older one resolved after the newer one. Fix by cancelling the previous request before starting a new one. switchMap in RxJS or AbortController with fetch handles this correctly.", r: "Accepts the flickering result as an API timing issue with no fix. Does not understand request cancellation." }
+  ]},
+  { id: 3, name: "Pagination", level: "mid", questions: [
+    { q: "What is the difference between offset-based and cursor-based pagination? When would you choose each?", k: "Offset uses page number and page size. Simple but can skip or duplicate rows when data changes. Cursor uses a stable pointer to the last seen item. No gaps in real-time data. Choose offset for admin tables with mostly static data, cursor for real-time feeds.", r: "Only knows offset pagination. Cannot explain why cursor pagination exists." },
+    { q: "User is on page 5 and applies a new filter. Where should they end up?", k: "Always reset to page 1. A new filter defines a completely new result set. Page 5 of the filtered set is likely empty or meaningless. This is a common bug when filter state and page state are managed independently.", r: "Keeps the user on page 5, leading to an empty or wrong-looking table." },
+    { q: "How would you implement infinite scroll? What are the trade-offs compared to traditional pagination?", k: "Use IntersectionObserver on a sentinel element at the bottom. When it enters the viewport, load the next page and append data. Trade-offs. Pros include smoother UX and fewer clicks. Cons include inability to jump to a specific page, difficulty sharing a scroll position, and increasing DOM size.", r: "Uses a scroll event listener directly, which fires on every pixel and has performance problems." },
+    { q: "With virtual scroll rendering 50000 rows but only 20 in the DOM, how does the browser show the correct scrollbar height?", k: "The container has a fixed height set to totalRows multiplied by rowHeight. This makes the scrollbar proportional to the real total. Calculate the first visible row index from scrollTop divided by rowHeight. Render only those rows plus a small buffer. Row height must be consistent or pre-measured.", r: "Cannot explain the fixed-height container trick. Thinks virtual scroll just hides and shows rows." },
+    { q: "User reports the table jumps when navigating to the last page which has only 3 rows. What causes this?", k: "The table body shrinks on the last page, causing content below the table to jump upward. Fix by setting a minimum height on the table body equal to full page row height. Or fill remaining slots with invisible placeholder rows.", r: "Cannot identify the root cause. Suggests overflow hidden or similar CSS workarounds." },
+    { q: "User changes items per page from 20 to 50. Walk me through all the side effects.", k: "Reset the current page index to 1. Recalculate the total page count. Reload data with the new page size. Update URL params if persisted. Check that the user was not on a page that no longer exists with the new page size.", r: "Only changes the page size without resetting the page index, causing the user to see a page that may not exist." },
+    { q: "What is IntersectionObserver and how is it more efficient than a scroll event listener?", k: "IntersectionObserver fires a callback when a target element enters or exits the viewport. It runs off the main thread. The scroll event fires synchronously on the main thread on every pixel. IntersectionObserver eliminates the need for scroll position math and is far less CPU-intensive.", r: "Does not know IntersectionObserver. Uses scroll event with getBoundingClientRect, which causes forced layout recalculations." },
+    { q: "How do you handle the case where total item count is unknown, such as a Twitter-style feed?", k: "Use a hasMore boolean from the API response instead of a total count. When hasMore is true, show Load more or continue infinite scroll. When hasMore is false, show You have reached the end. Avoids displaying a total that cannot be computed efficiently on the server.", r: "Tries to compute the total on the client side. Cannot handle feeds where total count is unknown or expensive." },
+    { q: "What happens if the user is on page 5 and another user deletes 10 rows from page 1? What does page 5 now show?", k: "With offset pagination, the deleted rows shift all subsequent pages. Page 5 now shows different rows than before, some already seen on page 4. This is a well-known offset pagination problem. Cursor-based pagination avoids this because the cursor points to a specific record, not a position.", r: "Does not recognize this as a known problem of offset pagination. Has no solution or mitigation strategy." }
+  ]},
+  { id: 4, name: "Selection and Row Actions", level: "mid", questions: [
+    { q: "How would you design the data structure to track which rows are selected in a multi-select table?", k: "Use a Set of IDs, not an array of full row objects. O(1) lookup and automatic deduplication. Store only IDs because objects can go stale if the server updates the row. Derive isSelected from selectedIds.has(row.id).", r: "Uses an array of full row objects, which has O(n) lookup and risks stale references when data refreshes." },
+    { q: "Select All on current page versus Select All 10000 records across all pages. How are these fundamentally different?", k: "Page selection adds all visible row IDs to the Set. Global selection uses a flag like isAllSelected set to true, and maintains a separate Set of explicitly deselected IDs. The API receives a flag, not a list of 10000 IDs. Never load all records just to collect their IDs.", r: "Tries to fetch all 10000 records to collect their IDs." },
+    { q: "User selects 50 rows and clicks Delete. The API processes them one at a time. How do you show progress and handle partial failures?", k: "Process in batches of 5 to 10, not 50 serial calls. Show a progress bar with the count of completed items. Track per-item status. On partial failure, show which items succeeded and which failed. Allow retry of only the failed items.", r: "Fires 50 serial requests with no feedback. Shows only a final success or failure message with no per-item detail." },
+    { q: "A user double-clicks a cell to enter edit mode, then presses Escape. What should happen?", k: "Cancel the edit and restore the original cell value. Make no API call. Exit edit mode. Return keyboard focus to the cell. The original value must be stored in a local variable when entering edit mode so it can be restored on cancel.", r: "Saves on Escape. Loses focus entirely. Does not track the original value for restoration." },
+    { q: "After inline edit, compare pessimistic versus optimistic update strategies for this scenario.", k: "Pessimistic waits for API success before updating UI. Safe, shows real state, slower feedback. Optimistic updates UI immediately, rolls back on API error. Fast UX, complex rollback. For low-risk edits like name change, optimistic is fine. For financial or status changes, pessimistic is safer.", r: "Only knows one approach. Cannot explain rollback in an optimistic update scenario." },
+    { q: "The header checkbox needs three states. Unchecked, checked, and indeterminate. How do you compute the indeterminate state?", k: "Indeterminate is true when selectedCount is greater than zero and less than totalVisibleRows. This is a computed value, not stored explicitly. The indeterminate state must be set via the DOM property, not an HTML attribute. Setting the attribute has no visual effect in most browsers.", r: "Stores indeterminate as a separate state variable. Does not know it must be set as a DOM property." },
+    { q: "How do you implement drag-and-drop reordering of rows in a table?", k: "Use the HTML Drag and Drop API with the draggable attribute on each row. Listen to dragstart, dragover, and drop events. Track the dragged row index. On drop, reorder the data array and re-render. Accessibility. Keyboard-based reordering using arrow keys must also be implemented as mouse drag is inaccessible.", r: "Does not know the draggable attribute or the drag events. Cannot address keyboard accessibility for reordering." },
+    { q: "How do you prevent accidental double-clicks from submitting an API request twice?", k: "Disable the button immediately after the first click, before the API call completes. Use a loading state that both disables the button and shows a spinner. Re-enable only after the API responds, whether success or error. Debounce alone is insufficient because two clicks far enough apart still both fire.", r: "Relies only on debounce or does nothing. Does not disable the button during the in-flight request." }
+  ]},
+  { id: 5, name: "Performance", level: "senior", questions: [
+    { q: "A table renders 1000 rows each with a formatted date. How many times is the format function called per render cycle without optimization?", k: "1000 times per render, more if the function is impure. Fix by pre-processing the formatted date when data arrives and storing the result alongside the raw data. The view reads the pre-formatted value rather than calling the function on every render.", r: "Accepts 1000 function calls as normal behavior. Uses an impure formatting function inside the template." },
+    { q: "What is the difference between re-render and re-compute? Why does this distinction matter for table performance?", k: "Re-render means updating the DOM. Expensive because it involves layout, paint, and composite. Re-compute means recalculating a derived JavaScript value in memory. Cheap when memoized. Signals and computed values exist to separate these two things so only genuinely changed data triggers a DOM update.", r: "Treats them as synonyms. Cannot explain how memoization separates computation from DOM updates." },
+    { q: "Each of your 20 rows needs a status badge loaded from a separate API endpoint. How do you fetch these efficiently?", k: "Fetch all 20 in parallel using Promise.all or forkJoin. Never fetch sequentially in a loop. If a batch endpoint is available, use it. Cache results per ID. Show a per-row loading state while fetches complete.", r: "Fetches status values one by one in a loop. Blocks the entire table until every single fetch completes." },
+    { q: "A filter and sort on 50000 client-side records causes the UI to freeze for 500ms. What are your options?", k: "Best option is moving to server-side. If not possible. Web Worker to move computation off the main thread. Chunked processing with requestIdleCallback. Virtual scroll so you only process visible rows. Debounce to avoid triggering on every keystroke.", r: "Only suggests server-side without knowing other options. Does not know what a Web Worker is." },
+    { q: "What is trackBy or the key prop in list rendering? Why does it matter for a table with CRUD operations?", k: "Tells the framework how to identify each list item using a stable unique ID. Without it, the framework destroys and recreates all DOM nodes when the array changes. With it, only the specific changed item has its DOM updated. Critical when rows contain inputs with focus or have their own animations.", r: "Does not know what trackBy does. Thinks it is optional or only a performance hint with no behavioral implications." },
+    { q: "Your table uses OnPush change detection. A parent mutates a row object directly. The table does not update. Why?", k: "OnPush only detects input reference changes. Mutating a property does not change its reference, so the framework skips re-rendering. Fix by always creating a new object reference using spread. This is the fundamental principle behind immutable data patterns in reactive UIs.", r: "Cannot explain why mutation fails with OnPush. Suggests calling detectChanges manually everywhere." },
+    { q: "What are Core Web Vitals and which ones are most affected by a heavy data table?", k: "LCP measures time to render the largest visible element. A slow-loading table hurts LCP. INP measures how quickly the page responds to input. A table that freezes during sort or filter hurts INP. CLS measures unexpected layout shifts. A table that grows after data loads hurts CLS. All three are affected.", r: "Does not know Core Web Vitals. Cannot explain the relationship between table behavior and performance metrics." },
+    { q: "How would you use a Web Worker to offload a heavy sort operation?", k: "Create a Worker file that receives the rows array and sort config via postMessage, performs the sort, and posts the result back. The main thread sends data to the worker and listens for the sorted result. During sorting, the UI remains interactive because the main thread is free. The cost is data serialization overhead.", r: "Has never used Web Workers. Does not know the postMessage communication model or the serialization cost of transferring data." }
+  ]},
+  { id: 6, name: "HTTP and Data Fetching", level: "senior", questions: [
+    { q: "User types rapidly. You want to call the API only for the final value. How do you handle this without race conditions?", k: "Debounce plus cancel-and-replace. Debounce reduces call frequency. Cancel-and-replace using switchMap or AbortController ensures that when a new request starts, the previous in-flight one is cancelled. mergeMap keeps all requests running in parallel and is wrong here.", r: "Only mentions debounce without cancellation. Confuses mergeMap and switchMap. Does not know AbortController." },
+    { q: "Your table API returns 503 errors intermittently. How do you implement automatic retry with exponential backoff?", k: "Retry with increasing delays. First at 1 second, second at 2 seconds, third at 4 seconds. Base 2 raised to the attempt number multiplied by 1000ms. Set a maximum of 3 retries. Only retry idempotent requests. For POST or DELETE, show an error and let the user retry manually.", r: "Retries immediately in a tight loop. Retries POST without considering the risk of duplicate side effects." },
+    { q: "Your table loads the same reference dropdown list on every page visit. How would you cache this?", k: "In-memory cache in a singleton service using a Map keyed by URL. Set a time-to-live of perhaps 5 minutes. Serve cached data if available and not expired. Invalidate on mutation. Consider stale-while-revalidate, which serves stale cache immediately for fast display and refreshes in the background.", r: "Has no caching strategy. Or caches with no invalidation, serving stale data indefinitely." },
+    { q: "User deletes a row with optimistic update, but the API returns 500. Walk through the full rollback.", k: "Before mutation, take a snapshot of current state. Apply optimistic removal to UI. Disable the delete button while in flight. On API error, restore the snapshot to UI state. Show error notification. Re-enable the delete button so the user can retry. The snapshot before the action is the key to reliable rollback.", r: "Cannot describe the snapshot step. Shows an error but does not restore the deleted row." },
+    { q: "Compare polling versus WebSocket for real-time table updates.", k: "Polling has the client request data every N seconds. Simple, works everywhere, stateless, but wastes bandwidth when nothing changed. WebSocket keeps a persistent connection and lets the server push updates. Efficient and truly real-time but requires infrastructure support. SSE is a useful middle ground for unidirectional server push over standard HTTP.", r: "Only knows polling. Cannot explain the scalability cost of aggressive polling at high user counts." },
+    { q: "An HTTP interceptor adds a JWT to every request. The JWT expires mid-session. How does the interceptor handle token refresh without multiple parallel refresh calls?", k: "When a 401 arrives, check if a refresh is already in progress using a shared flag. If not, start the refresh and set the flag. Queue all other pending requests that arrived during the refresh. On success, replay all queued requests with the new token. On refresh failure, log the user out.", r: "Triggers a refresh call for every 401 response, causing multiple parallel refresh calls that conflict with each other." },
+    { q: "What is CORS and how does it affect your table fetching data from a different domain?", k: "CORS is a browser security mechanism that blocks requests from one origin to a different origin unless the server explicitly allows it via the Access-Control-Allow-Origin response header. CORS is enforced by the browser. Backend developers configure it. Frontend developers diagnose it by reading the browser console error and checking response headers.", r: "Thinks adding a header in the frontend request fixes a CORS error. Does not understand that CORS is server-configured." },
+    { q: "What is the Service Worker and how could it support your table when the user goes offline?", k: "A Service Worker intercepts network requests and can serve responses from a cache when the network is unavailable. For a table, cache the last loaded page of data and serve it offline with a banner saying Viewing cached data from timestamp. Write operations must be queued and synced when connectivity returns.", r: "Does not know Service Workers. Has no offline strategy. Shows an error when the network disappears." }
+  ]},
+  { id: 7, name: "State Management", level: "senior", questions: [
+    { q: "When should table state live in the component versus a shared store? Give concrete criteria.", k: "Component-local is correct when state is only needed in this one view, does not need to survive navigation, and is not shared with sibling components. A shared store is correct when state is needed across multiple routes, must survive navigation, or requires undo and redo. Default to local state.", r: "Puts everything in a global store. Cannot articulate the cost of unnecessary global state." },
+    { q: "Two sibling components need to share selected rows state. Neither is the parent. What are your options?", k: "Lifting state to the nearest common ancestor is cleanest. A shared singleton service is also valid. A global store is overkill for this scope. An event bus decouples components but makes data flow hard to trace. Start with lifting state to the parent.", r: "Only knows global stores. Cannot explain why lifting state to a parent is simpler and more traceable." },
+    { q: "A user makes 10 inline edits. They click Undo 3 times. How do you implement this?", k: "Maintain a history stack as an array of past states. Each edit pushes the pre-edit snapshot. Undo pops the most recent snapshot and restores it. Set a maximum depth of perhaps 50 entries to prevent unbounded memory growth.", r: "Cannot explain the history stack concept. Suggests fetching original data from the server on undo, which breaks offline scenarios." },
+    { q: "You have 5 independent tables on one page. Should they share a single store instance or each have their own?", k: "Each table needs its own scoped state instance. A single shared store would mix all five tables state. Use a factory pattern to create independent store instances or scope the store to each table component injector.", r: "Uses a single global store with keys like table1 and table2. Gets hard to maintain and does not scale." },
+    { q: "A user s filter preferences should persist across browser restarts. What is your implementation strategy?", k: "Serialize filter state to JSON and store in localStorage keyed by a user-specific key. Define the schema with a version number field. On load, validate the version. If mismatch, discard and reset to defaults. Never store sensitive data in localStorage.", r: "Stores raw objects without a version number. The application breaks silently after an update that changes the filter schema." },
+    { q: "Your store has derived state filteredAndSortedRows computed from raw rows, filters, and sort config. How do you ensure it does not recompute unnecessarily?", k: "Use a computed signal or memoized selector. The derived value recalculates only when a dependency changes. All dependencies must use immutable update patterns. If rawRows is mutated rather than replaced, computed or memoized selectors will not detect the change.", r: "Recomputes the derived state on every state change regardless of whether the relevant inputs changed." },
+    { q: "What is the problem with storing isLoading as a single boolean when two API calls can be in flight at the same time?", k: "Two concurrent requests will conflict. The first request sets isLoading to true. The second also sets it to true. The first completes and sets isLoading to false. Now the second is still in flight but isLoading is false, hiding the loading indicator. Fix by tracking a count of pending requests.", r: "Does not recognize the race condition. Uses a single isLoading boolean for all requests on the page." }
+  ]},
+  { id: 8, name: "Micro-Frontend", level: "senior", questions: [
+    { q: "Your table component is in a Remote app. The Shell lazily loads it. What must be configured for Angular DI to work without duplicate instances?", k: "Angular core, forms, and router must be declared as singleton and strictVersion true in the federation shared config. Both Shell and Remote must agree on the exact version. Two Angular instances cause broken DI, broken routing, and broken forms. This is the most common micro-frontend integration failure.", r: "Does not know about singleton configuration. Cannot explain what having two Angular instances means in practice." },
+    { q: "The Shell needs to pass a patientId into the Remote table. What are the communication options?", k: "URL params are the simplest and most reliable option. They are bookmarkable, shareable, and framework-agnostic. A shared singleton service in a shared library is also valid. A custom DOM CustomEvent on window is loose coupling but hard to type-check. Never import directly from one remote into another remote.", r: "Suggests importing the Remote service directly into the Shell, creating a hard dependency that breaks independent deployments." },
+    { q: "Remote table needs to notify the Shell when a row is selected. How do you implement cross-MFE communication without tight coupling?", k: "Options from least to most coupled. Browser CustomEvent dispatched on window and listened to by the Shell. A shared singleton service in a shared library. URL state changes the Shell observes. Direct cross-remote imports are not an option.", r: "The Remote directly imports and calls Shell code, creating a circular dependency." },
+    { q: "Team B deploys the Remote with a breaking change to the table interface. Team A Shell is still on the old interface. What is the failure mode?", k: "At runtime, the Shell passes props the Remote no longer accepts, causing silent wrong behavior or a runtime error. Prevention requires consumer-driven contract tests where the Shell defines the expected interface and the Remote must pass those tests before deploying.", r: "Assumes teams will coordinate manually via chat. Does not know about contract testing." },
+    { q: "The Remote deployment fails halfway. Shell users get a blank table. How do you handle this at the Shell level?", k: "Wrap the Remote mount point in an error boundary or a try-catch around the dynamic import. Catch the module load failure and display a meaningful fallback UI. Set up monitoring alerts on load failures. The Shell must remain fully functional even when one Remote is unavailable.", r: "Has no error handling for Remote load failure. The entire Shell becomes unusable when one Remote fails to load." },
+    { q: "Three Remote apps all need the same JWT auth token. Where does authentication live in a micro-frontend architecture?", k: "Authentication lives in a shared library marked as singleton in federation config. The HTTP interceptor also lives in this shared library. Token refresh is handled once by the Shell or a dedicated auth remote. Individual remotes never implement their own auth logic.", r: "Each Remote implements its own auth service, resulting in three independent sessions and potential token conflicts." },
+    { q: "Your micro-frontend bundle is 2MB because it includes Angular plus all its dependencies. The Shell bundle is also 2MB. How do you fix this?", k: "Configure Angular and other framework libraries as shared singletons in the federation config. When properly configured, Angular is only in the Shell bundle. Remotes reference the Shell copy at runtime. Verify with a bundle analyzer after the change.", r: "Accepts duplicate bundles as a normal cost of micro-frontends. Does not know about shared library configuration." },
+    { q: "What is the difference between horizontal and vertical micro-frontend slicing? Which approach produces better team ownership?", k: "Horizontal slicing divides by UI layer, for example one remote for navigation and another for the content area. Vertical slicing divides by business domain, for example one remote per feature area. Vertical slicing is strongly preferred because each remote can be owned end-to-end by one team with full context.", r: "Does not know the distinction. Cannot explain why vertical slicing produces better team ownership." }
+  ]},
+  { id: 9, name: "Accessibility and UX Polish", level: "mid", questions: [
+    { q: "A keyboard-only user must navigate the table, select rows, and trigger row actions. Walk me through all required keyboard interactions.", k: "Arrow keys navigate between cells. Space toggles row selection. Enter activates the focused action button. Tab moves between interactive elements within the table. Escape closes any open menus or dialogs. All interactive elements must have a visible focus indicator.", r: "Only mentions the Tab key. Does not know about arrow key navigation inside a grid role element." },
+    { q: "A screen reader user needs to know which column is sorted and in which direction. How do you implement this?", k: "Add aria-sort attribute to the th element with value ascending or descending. When sort changes, an aria-live region set to polite announces the change. The visual sort icon alone is not sufficient because screen readers do not read CSS content or background images.", r: "Relies only on the sort icon. Does not know the aria-sort attribute." },
+    { q: "After deleting a row, keyboard focus disappears to the document body. Why is this bad and how do you fix it?", k: "The deleted element no longer exists so the browser drops focus to the body, disorienting keyboard and screen reader users. Fix by programmatically moving focus to the next row after the deleted one. If the last row was deleted, move focus to the previous row or to the table caption.", r: "Accepts focus loss as normal behavior. Has never considered focus management for dynamic DOM changes." },
+    { q: "Your table has 50 rows each with a View Details link. All 50 links say View Details. Why is this an accessibility problem?", k: "Screen reader users often navigate by listing all links on a page. They hear View Details repeated with no context. Fix using aria-label to add context such as View Details for John Doe on each link. Or use a visually-hidden span inside the link with the row context.", r: "Does not know that non-descriptive link text is an accessibility problem. Does not know aria-label." },
+    { q: "A user applies a filter and the table updates dynamically. A screen reader user does not know the table changed. How do you inform them?", k: "An aria-live region set to polite announces the result count after the table updates. For example Showing 12 results. Update its content after the table DOM settles. The polite setting waits for the user to finish their current announcement before reading the new one.", r: "Does not know aria-live. Only provides visual feedback. Screen reader users have no indication that the table content changed." },
+    { q: "What is a focus trap and when would you need one in the context of a table?", k: "A focus trap confines keyboard focus to a specific element subtree. You need this when a modal dialog or dropdown opens as a result of a row action. Without a focus trap, Tab moves focus out of the dialog and behind the overlay, which is confusing. When the dialog closes, focus must return to the element that triggered it.", r: "Does not know what a focus trap is. Modals opened from the table allow focus to escape behind the overlay." },
+    { q: "What is color contrast ratio and why is it important for table text and status badges?", k: "Color contrast ratio measures the difference in luminance between text and its background. WCAG AA requires at least 4.5 to 1 for normal text and 3 to 1 for large text. Status badges with light backgrounds and white text often fail this threshold. Verify every badge variant with a contrast checker.", r: "Does not know WCAG contrast requirements. Chooses badge colors based on aesthetics without checking contrast ratios." },
+    { q: "Your table is in a single-page application. When the user navigates to the table route, a screen reader announces nothing. What is wrong?", k: "Single-page navigation does not trigger the browser to announce the new page title the way a full page reload does. Fix by using an aria-live region to announce route changes. Set the document title on each route change. Move focus to a main content heading on every route change.", r: "Does not know that client-side routing does not trigger page announcements. Has no strategy for screen reader route change communication." }
+  ]},
+  { id: 10, name: "Forms in Table", level: "mid", questions: [
+    { q: "A filter bar above the table is a form. Should the table update on every keystroke or wait for a Search button?", k: "Instant update is better UX for simple text filters on small datasets, but needs debounce and request cancellation. Button-triggered is better for expensive searches, date ranges, and complex multi-field combinations. A hybrid approach debounces text inputs but triggers immediately on dropdown selections.", r: "Gives one answer without acknowledging the trade-offs. Does not mention debounce for real-time updates." },
+    { q: "During inline editing, end date must be after start date. How do you implement this cross-field validation?", k: "Cross-field validation must live at the FormGroup level for the row, not on individual controls. Write a custom group validator function that reads both control values and returns an error object if the condition fails. Individual control validators cannot access sibling control values.", r: "Tries to validate end date by accessing start date from a parent component or service. Bypasses the reactive form validation system." },
+    { q: "A table schema comes from an API. Some columns are text inputs, some are dropdowns, some are date pickers. How do you build a dynamic form system?", k: "Map each column type string to a FormControl type at runtime using a factory function. Build the FormGroup dynamically based on the schema. Use a component registry object that maps type strings like text or select to their corresponding input components. Never hardcode column types.", r: "Hard-codes all column types with a long switch statement. Cannot describe how to instantiate components dynamically from configuration." },
+    { q: "User has unsaved inline edits and tries to navigate away. How do you warn them?", k: "A CanDeactivate route guard checks whether any row form is dirty. If so, show a confirmation dialog. If the user confirms, discard and navigate. If they cancel, stay and return focus to the table. Never auto-save without explicit user intent.", r: "Allows navigation without warning, silently discarding changes. Or auto-saves on every navigation without user awareness." },
+    { q: "An async validator checks if a username is unique via API. The user types fast. What problems arise?", k: "Many API calls fire simultaneously, one per character. The last response may not match the current input. Fix by debouncing inside the async validator. Cancel the previous validation call using switchMap. Show a checking state while validation runs. Cache the last result so the same value does not re-validate.", r: "Fires an API call on every character. Does not handle the race condition where an older response arrives after a newer one." },
+    { q: "How do you handle form state when the user navigates between rows in inline editing, where each row has its own form?", k: "Each row form is a standalone reactive form scoped to that row component. Changes in row A do not affect row B. When the user leaves a row without saving, either auto-save or prompt. Use a dirty flag per row to show a visual indicator for rows with unsaved changes.", r: "Uses one global form for the entire table. Editing row A overwrites row B state because all rows share the same form controls." },
+    { q: "What is the difference between form-level and field-level error display? When should you use each?", k: "Field-level errors appear next to the specific input that failed. Best for single-field violations like Email is required. Form-level or group-level errors appear near the submit button or at the top of the form. Best for cross-field violations where neither individual field is alone at fault.", r: "Always displays errors at the field level. Cannot show a meaningful error for cross-field validation." }
+  ]},
+  { id: 11, name: "Security", level: "senior", questions: [
+    { q: "An Admin Actions column should only be visible to admin users. Where do you enforce this, frontend, backend, or both?", k: "Both layers always. Frontend hides the column for UX. Backend blocks the API endpoint regardless of what the frontend sends. Frontend enforcement alone is security theater. Anyone with browser DevTools can unhide the column and call the API directly.", r: "Says frontend is enough. Does not understand that frontend code runs on the user machine and is fully controllable." },
+    { q: "A user exports the table to CSV. A cell value contains equals CMD. What is this attack and how do you prevent it?", k: "This is CSV injection, also known as formula injection. When opened in Excel or Google Sheets, formulas in cells can execute system commands. Prevention requires prefixing any cell value that starts with equals, plus, minus, at sign, tab, or carriage return with a single quote.", r: "Has never heard of CSV injection. Thinks CSV files are safe because they contain no HTML or JavaScript." },
+    { q: "A search input sends user-typed text to the API. What injection risks exist on the frontend side?", k: "If the search term is reflected back in the DOM and rendered as HTML, there is an XSS risk. Always use textContent or framework bindings, never innerHTML, when inserting user-supplied strings. SQL injection must be mitigated on the backend with parameterized queries. Frontend sanitization is defense-in-depth, not the primary defense.", r: "Thinks frontend input sanitization prevents SQL injection on the backend." },
+    { q: "Your table API returns 20 fields per row but the table displays only 5. Is this acceptable?", k: "Not acceptable. The other 15 fields are visible in browser DevTools, in proxy tools, and to anyone inspecting network traffic. Sensitive fields should not be returned at all by the API for users who do not need them. Apply the principle of least privilege to API responses.", r: "Accepts over-fetching as normal because the fields are not displayed in the UI. Does not understand that network traffic is visible." },
+    { q: "What is Content Security Policy and how does it protect the page that contains your table?", k: "CSP is a response header that tells the browser which sources are allowed to load scripts and styles. A strict CSP prevents injected scripts from executing even if an XSS vulnerability exists. For a table with inline editing, ensure CSP allows your application scripts and whitelisted CDNs. Inline scripts and eval are forbidden by default in a strict CSP.", r: "Does not know what CSP is. Has never checked whether the application has CSP headers configured." },
+    { q: "A third-party chart library is used to visualize table data. How could this introduce a security risk?", k: "Supply chain attack. If the library is compromised, malicious code runs in your application. Mitigations include pinning exact versions with a lockfile, using Subresource Integrity for CDN-loaded scripts, auditing with npm audit, and minimizing the number of third-party dependencies.", r: "Does not think about supply chain risks. Uses always-latest versions from CDN with no integrity verification." },
+    { q: "How do you safely store an authentication token for use across requests in a single-page application?", k: "Memory storage, meaning a JavaScript variable, is most secure but is gone on page refresh. SessionStorage survives within the tab. LocalStorage persists but is accessible to any JavaScript on the page, making it vulnerable to XSS. HttpOnly cookies are immune to JavaScript access and are generally recommended for sensitive tokens.", r: "Always uses localStorage because it is simple. Does not understand that localStorage is readable by any JavaScript, including injected scripts." }
+  ]},
+  { id: 12, name: "Testing", level: "senior", questions: [
+    { q: "How do you test a table component sorting behavior without coupling your tests to the specific framework sorting library?", k: "Extract the sort logic as a pure function and test that function independently of any component or DOM. In the component test, mock the data source and verify the sort function is called with the correct parameters. Test only the logic you wrote, not the framework internals.", r: "Tests the framework sort library behavior. Or mounts the full table and checks DOM node order, which is slow and fragile." },
+    { q: "You want to test that when filter changes, the API is called with the correct URL params. How do you structure this?", k: "Test the HTTP service in isolation. Mock the HTTP layer using the framework HTTP testing utilities. Trigger a filter change programmatically. Assert that the HTTP request was made with the correct URL and params. Do not go through the component to test service behavior.", r: "Renders the entire component just to verify that the service calls the correct URL. The test is slow and tests too much at once." },
+    { q: "Your table has 15 different valid combinations of filter, sort, and page state. How do you avoid writing 15 separate tests?", k: "Parameterized or data-driven tests. Define an array of input and expected output pairs. Run the same assertion logic against all combinations. This forces you to extract the combination logic as a testable pure function. The test suite remains readable and adding new combinations requires only one new data entry.", r: "Writes 15 individual copy-paste tests. Or skips testing combinations entirely and tests only one happy path." },
+    { q: "How do you test an HTTP interceptor that adds auth headers and handles token refresh on 401?", k: "Three distinct test cases. First, make a request and assert the auth header is present. Second, mock a 401 response, assert a token refresh call is made, and assert the original request is replayed with the new token. Third, mock a failed refresh and assert the logout flow is triggered.", r: "Cannot simulate a 401 response in a test environment. Only tests the happy path where no auth error occurs." },
+    { q: "A Micro-Frontend Remote passes all unit tests but breaks when integrated with the Shell. What testing strategy prevents this?", k: "Contract testing. The Shell defines the expected interface as a contract test suite. The Remote runs those tests against its own implementation. An integration test harness loads Shell and Remote together. Full end-to-end tests cover critical paths. Contract tests are orders of magnitude faster than end-to-end for catching interface mismatches.", r: "Only uses end-to-end testing for integration. No tests catch the interface mismatch before the combined deployment fails." },
+    { q: "What is the test pyramid and how does it apply to a table feature with sorting, filtering, HTTP calls, and a route guard?", k: "Unit tests form the broad base. Sort function, filter function, HTTP service methods, and guard logic. Integration tests form the middle. Component with mocked services, form with validation. End-to-end tests form the narrow top. One or two critical user flows. An inverted pyramid with mostly end-to-end tests is slow, expensive, and fragile.", r: "Only writes end-to-end tests because they test the real thing. Cannot explain why unit tests at the base are faster and more actionable." },
+    { q: "What does test isolation mean and why does a lack of it cause flaky tests?", k: "Each test starts with a clean, predictable state and does not depend on or affect other tests. Lack of isolation means test A changes some shared state and test B passes or fails depending on whether test A ran first. Fix by resetting all shared state in beforeEach and afterEach. Observables and Subjects must be completed and re-created per test.", r: "Shares state across tests in the same describe block. Tests pass in one order and fail in another." }
+  ]}
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const LS_STARS    = 'fib_stars_v2';
+const LS_CUSTOM   = 'fib_custom_v2';
+const LS_HL       = 'fib_hl_v2';
+
+let stars     = new Set(JSON.parse(localStorage.getItem(LS_STARS)  || '[]'));
+let highlights = new Set(JSON.parse(localStorage.getItem(LS_HL)    || '[]'));
+let customs    = JSON.parse(localStorage.getItem(LS_CUSTOM) || '{}');
+// customs = { [groupId]: [{ q, k, r }] }
+
+let currentFilter = { group: '', level: '', search: '', starredOnly: false };
+let activeGroupId = null;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem(LS_STARS,  JSON.stringify([...stars]));
+  localStorage.setItem(LS_HL,     JSON.stringify([...highlights]));
+  localStorage.setItem(LS_CUSTOM, JSON.stringify(customs));
+}
+
+function qid(groupId, idx) { return `g${groupId}_q${idx}`; }
+
+function levelClass(level) {
+  if (level === 'junior') return 'level-junior';
+  if (level === 'senior') return 'level-senior';
+  return 'level-mid';
+}
+
+function levelLabel(level) {
+  if (level === 'junior') return 'Junior';
+  if (level === 'senior') return 'Senior';
+  return 'Mid';
+}
+
+function matchesFilter(group, qText) {
+  if (currentFilter.group && String(group.id) !== currentFilter.group) return false;
+  if (currentFilter.level) {
+    const lvl = group.level;
+    if (currentFilter.level === 'junior' && lvl !== 'junior') return false;
+    if (currentFilter.level === 'senior' && lvl !== 'senior') return false;
+    if (currentFilter.level === 'mid' && lvl === 'junior') return false;
+    if (currentFilter.level === 'mid' && lvl === 'senior') return false;
+  }
+  if (currentFilter.search) {
+    const s = currentFilter.search.toLowerCase();
+    if (!qText.toLowerCase().includes(s)) return false;
+  }
+  return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function buildGroupSelect(selectEl) {
+  selectEl.innerHTML = '';
+  GROUPS.forEach(g => {
+    const o = document.createElement('option');
+    o.value = g.id;
+    o.textContent = `${g.id}. ${g.name}`;
+    selectEl.appendChild(o);
+  });
+}
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  GROUPS.forEach(g => {
+    const allQ = [...g.questions, ...(customs[g.id] || [])];
+    const div = document.createElement('div');
+    div.className = 'sidebar-group' + (activeGroupId === g.id ? ' active' : '');
+    div.dataset.id = g.id;
+    div.innerHTML = `
+      <div class="sidebar-group-num">${g.id}</div>
+      <div class="sidebar-group-name">${g.name}</div>
+      <div class="sidebar-count">${allQ.length}</div>
+    `;
+    div.addEventListener('click', () => {
+      activeGroupId = activeGroupId === g.id ? null : g.id;
+      document.getElementById('filterGroup').value = activeGroupId || '';
+      applyFilters();
+      renderSidebar();
+    });
+    sb.appendChild(div);
+  });
+}
+
+function renderMain() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  let totalVisible = 0;
+
+  GROUPS.forEach(g => {
+    const allQ = g.questions.map((q, i) => ({ ...q, _id: qid(g.id, i), _custom: false }));
+    const cq = (customs[g.id] || []).map((q, i) => ({
+      ...q, _id: qid(g.id, 1000 + i), _custom: true
+    }));
+    const allCombined = [...allQ, ...cq];
+
+    const filtered = allCombined.filter(q => {
+      if (currentFilter.starredOnly && !stars.has(q._id)) return false;
+      return matchesFilter(g, q.q);
+    });
+
+    if (filtered.length === 0) return;
+    totalVisible += filtered.length;
+
+    const section = document.createElement('div');
+    section.className = 'group-section';
+    section.id = `group-${g.id}`;
+    section.innerHTML = `
+      <div class="group-header">
+        <div class="group-badge">${g.id}</div>
+        <div class="group-title">${g.name}</div>
+        <span class="level-tag ${levelClass(g.level)}">${levelLabel(g.level)}</span>
+        <button class="group-add-btn" onclick="openAddModal(${g.id})">+ Add question</button>
+      </div>
+    `;
+
+    filtered.forEach(q => {
+      const card = buildQCard(q, g);
+      section.appendChild(card);
+    });
+
+    main.appendChild(section);
+  });
+
+  if (totalVisible === 0) {
+    main.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No questions match the current filters.</p></div>`;
+  }
+
+  const total = GROUPS.reduce((s, g) => s + g.questions.length + (customs[g.id] || []).length, 0);
+  document.getElementById('counter').innerHTML = `Showing <strong>${totalVisible}</strong> of <strong>${total}</strong> questions`;
+}
+
+function buildQCard(q, g) {
+  const id = q._id;
+  const isStarred = stars.has(id);
+  const isHL = highlights.has(id);
+
+  const card = document.createElement('div');
+  card.className = 'q-card' + (isStarred ? ' starred' : '') + (isHL ? ' highlighted' : '');
+  card.dataset.id = id;
+
+  card.innerHTML = `
+    <div class="q-card-header">
+      <button class="star-btn" title="Star this question" data-id="${id}">
+        <span class="icon">⭐</span>
+      </button>
+      <div class="q-text">${escHtml(q.q)}</div>
+      ${q._custom ? '<span class="q-custom-badge">Custom</span>' : ''}
+      ${q._custom ? `<button class="q-delete-btn" title="Delete" data-id="${id}" data-gid="${g.id}">✕</button>` : ''}
+    </div>
+    <div class="q-toggle" data-id="${id}">
+      <span class="arrow">▶</span> Show answer guide
+    </div>
+    <div class="q-details" data-id="${id}">
+      <div class="q-block key">
+        <div class="q-block-label">Key Points to Evaluate</div>
+        ${escHtml(q.k || '')}
+      </div>
+      <div class="q-block red">
+        <div class="q-block-label">Red Flags to Watch For</div>
+        ${escHtml(q.r || '')}
+      </div>
+    </div>
+  `;
+
+  // Star button
+  card.querySelector('.star-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    if (stars.has(id)) { stars.delete(id); } else { stars.add(id); }
+    save();
+    renderAll();
+  });
+
+  // Highlight row on card click (not on buttons)
+  card.addEventListener('click', e => {
+    if (e.target.closest('.star-btn') || e.target.closest('.q-toggle') || e.target.closest('.q-delete-btn')) return;
+    if (highlights.has(id)) { highlights.delete(id); } else { highlights.add(id); }
+    save();
+    renderAll();
+  });
+
+  // Toggle answer
+  card.querySelector('.q-toggle').addEventListener('click', e => {
+    e.stopPropagation();
+    const toggle = card.querySelector('.q-toggle');
+    const details = card.querySelector('.q-details');
+    const isOpen = details.classList.contains('open');
+    toggle.classList.toggle('open', !isOpen);
+    details.classList.toggle('open', !isOpen);
+    toggle.querySelector('.arrow').textContent = isOpen ? '▶' : '▼';
+    toggle.childNodes[1].textContent = isOpen ? ' Show answer guide' : ' Hide answer guide';
+  });
+
+  // Delete custom
+  const delBtn = card.querySelector('.q-delete-btn');
+  if (delBtn) {
+    delBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const gid = parseInt(delBtn.dataset.gid);
+      const idx = parseInt(id.split('_q')[1]) - 1000;
+      if (customs[gid]) {
+        customs[gid].splice(idx, 1);
+        save();
+        renderAll();
+      }
+    });
+  }
+
+  return card;
+}
+
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderAll() {
+  renderSidebar();
+  renderMain();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────────────────────────────────────
+function applyFilters() {
+  currentFilter.group      = document.getElementById('filterGroup').value;
+  currentFilter.level      = document.getElementById('filterLevel').value;
+  currentFilter.search     = document.getElementById('filterSearch').value.trim();
+  currentFilter.starredOnly = document.getElementById('showStarred').checked;
+  activeGroupId = currentFilter.group ? parseInt(currentFilter.group) : null;
+  renderAll();
+  if (activeGroupId) {
+    setTimeout(() => {
+      const el = document.getElementById(`group-${activeGroupId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD QUESTION MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function openAddModal(groupId) {
+  const modal = document.getElementById('addModal');
+  modal.classList.add('open');
+  const sel = document.getElementById('addGroupSelect');
+  buildGroupSelect(sel);
+  if (groupId) sel.value = groupId;
+  document.getElementById('addQuestion').value = '';
+  document.getElementById('addKeyPoints').value = '';
+  document.getElementById('addRedFlags').value = '';
+  document.getElementById('addQuestion').focus();
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+
+function saveQuestion() {
+  const gid = parseInt(document.getElementById('addGroupSelect').value);
+  const q   = document.getElementById('addQuestion').value.trim();
+  const k   = document.getElementById('addKeyPoints').value.trim();
+  const r   = document.getElementById('addRedFlags').value.trim();
+  if (!q) { document.getElementById('addQuestion').focus(); return; }
+  if (!customs[gid]) customs[gid] = [];
+  customs[gid].push({ q, k, r });
+  save();
+  closeAddModal();
+  renderAll();
+}
+
+document.getElementById('addModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeAddModal();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────────────────────────────────────
+function openExport() {
+  const lines = [];
+  GROUPS.forEach(g => {
+    const allQ = g.questions.map((q, i) => ({ ...q, _id: qid(g.id, i) }));
+    const cq   = (customs[g.id] || []).map((q, i) => ({ ...q, _id: qid(g.id, 1000 + i) }));
+    const starred = [...allQ, ...cq].filter(q => stars.has(q._id));
+    if (starred.length === 0) return;
+    lines.push(`\n== Group ${g.id}. ${g.name} (${levelLabel(g.level)}) ==\n`);
+    starred.forEach((q, i) => {
+      lines.push(`Q${i+1}. ${q.q}`);
+      if (q.k) lines.push(`   Key Points. ${q.k}`);
+      if (q.r) lines.push(`   Red Flags. ${q.r}`);
+      lines.push('');
+    });
+  });
+  if (lines.length === 0) {
+    document.getElementById('exportText').value = 'No starred questions yet. Click the star icon on a question card to star it.';
+  } else {
+    document.getElementById('exportText').value = lines.join('\n').trim();
+  }
+  document.getElementById('exportPanel').classList.add('open');
+}
+
+function closeExport() {
+  document.getElementById('exportPanel').classList.remove('open');
+}
+
+function copyExport() {
+  const ta = document.getElementById('exportText');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const btn = document.querySelector('.export-actions .btn-accent');
+    btn.textContent = 'Copied.';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+}
+
+document.getElementById('exportPanel').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeExport();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CLEAR SESSION
+// ─────────────────────────────────────────────────────────────────────────────
+function clearSession() {
+  if (!confirm('Clear all stars, highlights, and custom questions? This cannot be undone.')) return;
+  stars.clear();
+  highlights.clear();
+  Object.keys(customs).forEach(k => delete customs[k]);
+  save();
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+(function init() {
+  const groupSel = document.getElementById('filterGroup');
+  GROUPS.forEach(g => {
+    const o = document.createElement('option');
+    o.value = g.id;
+    o.textContent = `Group ${g.id}. ${g.name}`;
+    groupSel.appendChild(o);
+  });
+  renderAll();
+})();
+</script>
+</body>
+</html>
