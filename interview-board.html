@@ -241,6 +241,20 @@
   .q-block.key .q-block-label { color: var(--green); }
   .q-block.red { background: var(--red-bg); border-left: 3px solid var(--red); }
   .q-block.red .q-block-label { color: var(--red); }
+  .q-block.figma { background: #f0f4ff; border-left: 3px solid #7c3aed; }
+  .q-block.figma .q-block-label { color: #7c3aed; }
+  .figma-display { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+  .figma-display a.figma-link-text { color: #2563eb; font-size: 12.5px; text-decoration: underline; word-break: break-all; flex: 1; }
+  .figma-display a.figma-link-text:hover { color: #1d4ed8; }
+  .figma-edit-btn { flex-shrink: 0; padding: 2px 8px; font-size: 11px; border: 1px solid #c4b5fd; border-radius: 4px; background: #ede9fe; color: #7c3aed; cursor: pointer; white-space: nowrap; }
+  .figma-edit-btn:hover { background: #ddd6fe; }
+  .figma-add-btn { font-size: 12px; color: #7c3aed; background: none; border: 1px dashed #c4b5fd; border-radius: 4px; padding: 3px 10px; cursor: pointer; }
+  .figma-add-btn:hover { background: #ede9fe; }
+  .figma-input-wrap { display: none; gap: 6px; align-items: center; }
+  .figma-input-wrap.active { display: flex; }
+  .figma-input-wrap input { flex: 1; padding: 5px 10px; border: 1px solid #7c3aed; border-radius: 6px; font-size: 12.5px; font-family: inherit; outline: none; background: #fff; color: var(--text); }
+  .figma-open-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; background: #7c3aed; color: #fff; font-size: 13px; text-decoration: none; flex-shrink: 0; }
+  .figma-open-btn:hover { background: #6d28d9; }
 
   /* ── ADD QUESTION MODAL ── */
   .modal-overlay {
@@ -366,6 +380,12 @@
     <div class="form-group">
       <label>Red Flags</label>
       <textarea id="addRedFlags" placeholder="What patterns indicate shallow or incorrect thinking..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Figma Link</label>
+      <div class="figma-input-wrap">
+        <input type="url" id="addFigmaLink" placeholder="https://www.figma.com/file/...">
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
@@ -525,10 +545,13 @@ let GROUPS = [
 const LS_STARS    = 'fib_stars_v2';
 const LS_CUSTOM   = 'fib_custom_v2';
 const LS_HL       = 'fib_hl_v2';
+const LS_FIGMA    = 'fib_figma_v1';
 
-let stars     = new Set(JSON.parse(localStorage.getItem(LS_STARS)  || '[]'));
+let stars      = new Set(JSON.parse(localStorage.getItem(LS_STARS)  || '[]'));
 let highlights = new Set(JSON.parse(localStorage.getItem(LS_HL)    || '[]'));
 let customs    = JSON.parse(localStorage.getItem(LS_CUSTOM) || '{}');
+let figmaLinks = JSON.parse(localStorage.getItem(LS_FIGMA)  || '{}');
+// figmaLinks = { [qid]: url }
 // customs = { [groupId]: [{ q, k, r }] }
 
 let serverAvailable = false;
@@ -543,11 +566,12 @@ function save() {
   localStorage.setItem(LS_STARS,  JSON.stringify([...stars]));
   localStorage.setItem(LS_HL,     JSON.stringify([...highlights]));
   localStorage.setItem(LS_CUSTOM, JSON.stringify(customs));
+  localStorage.setItem(LS_FIGMA,  JSON.stringify(figmaLinks));
   if (serverAvailable) {
     fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stars: [...stars], highlights: [...highlights], customs })
+      body: JSON.stringify({ stars: [...stars], highlights: [...highlights], customs, figmaLinks })
     }).catch(() => { serverAvailable = false; });
   }
 }
@@ -696,6 +720,20 @@ function buildQCard(q, g) {
         <div class="q-block-label">Red Flags to Watch For</div>
         ${escHtml(q.r || '')}
       </div>
+      <div class="q-block figma">
+        <div class="q-block-label">Figma Link</div>
+        <div class="figma-display">
+          ${figmaLinks[id]
+            ? `<a class="figma-link-text" href="${escHtml(figmaLinks[id])}" target="_blank" rel="noopener noreferrer">${escHtml(figmaLinks[id])}</a>
+               <button class="figma-edit-btn">Edit</button>`
+            : `<button class="figma-add-btn">+ Add Figma link</button>`
+          }
+        </div>
+        <div class="figma-input-wrap">
+          <input type="url" class="figma-link-input" data-id="${id}" placeholder="https://www.figma.com/file/..." value="${escHtml(figmaLinks[id] || '')}">
+          <a class="figma-open-btn" style="display:none" target="_blank" rel="noopener noreferrer" title="Open in Figma">↗</a>
+        </div>
+      </div>
     </div>
   `;
 
@@ -709,7 +747,7 @@ function buildQCard(q, g) {
 
   // Highlight row on card click (not on buttons)
   card.addEventListener('click', e => {
-    if (e.target.closest('.star-btn') || e.target.closest('.q-toggle') || e.target.closest('.q-delete-btn')) return;
+    if (e.target.closest('.star-btn') || e.target.closest('.q-toggle') || e.target.closest('.q-delete-btn') || e.target.closest('.figma-input-wrap')) return;
     if (highlights.has(id)) { highlights.delete(id); } else { highlights.add(id); }
     save();
     renderAll();
@@ -725,6 +763,59 @@ function buildQCard(q, g) {
     details.classList.toggle('open', !isOpen);
     toggle.childNodes[0].textContent = isOpen ? ' Show answer guide' : ' Hide answer guide';
   });
+
+  // Figma link — display/edit toggle
+  const figmaDisplay  = card.querySelector('.figma-display');
+  const figmaInputWrap = card.querySelector('.figma-input-wrap');
+  const figmaInput    = card.querySelector('.figma-link-input');
+  const figmaOpenBtn  = card.querySelector('.figma-open-btn');
+
+  function enterFigmaEdit() {
+    figmaDisplay.style.display  = 'none';
+    figmaInputWrap.classList.add('active');
+    figmaInput.focus();
+    figmaInput.select();
+    if (figmaInput.value) { figmaOpenBtn.href = figmaInput.value; figmaOpenBtn.style.display = 'inline-flex'; }
+  }
+
+  function exitFigmaEdit(save_) {
+    const val = figmaInput.value.trim();
+    if (save_) {
+      if (val) { figmaLinks[id] = val; } else { delete figmaLinks[id]; }
+      save();
+      // Rebuild display area
+      if (val) {
+        figmaDisplay.innerHTML = `<a class="figma-link-text" href="${val}" target="_blank" rel="noopener noreferrer">${escHtml(val)}</a><button class="figma-edit-btn">Edit</button>`;
+        figmaDisplay.querySelector('.figma-edit-btn').addEventListener('click', e => { e.stopPropagation(); enterFigmaEdit(); });
+      } else {
+        figmaInput.value = '';
+        figmaDisplay.innerHTML = `<button class="figma-add-btn">+ Add Figma link</button>`;
+        figmaDisplay.querySelector('.figma-add-btn').addEventListener('click', e => { e.stopPropagation(); enterFigmaEdit(); });
+      }
+    } else {
+      figmaInput.value = figmaLinks[id] || '';
+    }
+    figmaInputWrap.classList.remove('active');
+    figmaDisplay.style.display = 'flex';
+  }
+
+  if (figmaInput) {
+    figmaInput.addEventListener('click', e => e.stopPropagation());
+    figmaInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); exitFigmaEdit(true); }
+      if (e.key === 'Escape') { e.preventDefault(); exitFigmaEdit(false); }
+    });
+    figmaInput.addEventListener('blur', () => exitFigmaEdit(true));
+    figmaInput.addEventListener('input', () => {
+      if (figmaInput.value) { figmaOpenBtn.href = figmaInput.value; figmaOpenBtn.style.display = 'inline-flex'; }
+      else { figmaOpenBtn.style.display = 'none'; }
+    });
+  }
+
+  const addBtn  = card.querySelector('.figma-add-btn');
+  const editBtn = card.querySelector('.figma-edit-btn');
+  if (addBtn)  addBtn.addEventListener ('click', e => { e.stopPropagation(); enterFigmaEdit(); });
+  if (editBtn) editBtn.addEventListener('click', e => { e.stopPropagation(); enterFigmaEdit(); });
 
   // Delete custom
   const delBtn = card.querySelector('.q-delete-btn');
@@ -787,6 +878,7 @@ function openAddModal(groupId) {
   document.getElementById('addQuestion').value = '';
   document.getElementById('addKeyPoints').value = '';
   document.getElementById('addRedFlags').value = '';
+  document.getElementById('addFigmaLink').value = '';
   document.getElementById('addQuestion').focus();
 }
 
@@ -799,9 +891,10 @@ function saveQuestion() {
   const q   = document.getElementById('addQuestion').value.trim();
   const k   = document.getElementById('addKeyPoints').value.trim();
   const r   = document.getElementById('addRedFlags').value.trim();
+  const f   = document.getElementById('addFigmaLink').value.trim();
   if (!q) { document.getElementById('addQuestion').focus(); return; }
   if (!customs[gid]) customs[gid] = [];
-  customs[gid].push({ q, k, r });
+  customs[gid].push({ q, k, r, f });
   save();
   closeAddModal();
   renderAll();
