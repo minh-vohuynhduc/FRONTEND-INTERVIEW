@@ -353,6 +353,10 @@
     <input type="checkbox" id="showStarred" onchange="applyFilters()">
     <span>Starred only</span>
   </label>
+  <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+    <input type="checkbox" id="showHighlighted" onchange="applyFilters()">
+    <span>Highlighted only</span>
+  </label>
 </div>
 
 <!-- LAYOUT -->
@@ -556,7 +560,7 @@ let figmaLinks = JSON.parse(localStorage.getItem(LS_FIGMA)  || '{}');
 
 let serverAvailable = false;
 
-let currentFilter = { group: '', level: '', search: '', starredOnly: false };
+let currentFilter = { group: '', level: '', search: '', starredOnly: false, highlightedOnly: false };
 let activeGroupId = null;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -655,7 +659,12 @@ function renderMain() {
     const allCombined = [...allQ, ...cq];
 
     const filtered = allCombined.filter(q => {
-      if (currentFilter.starredOnly && !stars.has(q._id)) return false;
+      if (currentFilter.starredOnly && currentFilter.highlightedOnly) {
+        if (!stars.has(q._id) && !highlights.has(q._id)) return false;
+      } else {
+        if (currentFilter.starredOnly     && !stars.has(q._id))      return false;
+        if (currentFilter.highlightedOnly && !highlights.has(q._id)) return false;
+      }
       return matchesFilter(g, q.q);
     });
 
@@ -852,10 +861,11 @@ function renderAll() {
 // FILTERS
 // ─────────────────────────────────────────────────────────────────────────────
 function applyFilters() {
-  currentFilter.group      = document.getElementById('filterGroup').value;
-  currentFilter.level      = document.getElementById('filterLevel').value;
-  currentFilter.search     = document.getElementById('filterSearch').value.trim();
-  currentFilter.starredOnly = document.getElementById('showStarred').checked;
+  currentFilter.group         = document.getElementById('filterGroup').value;
+  currentFilter.level          = document.getElementById('filterLevel').value;
+  currentFilter.search         = document.getElementById('filterSearch').value.trim();
+  currentFilter.starredOnly    = document.getElementById('showStarred').checked;
+  currentFilter.highlightedOnly = document.getElementById('showHighlighted').checked;
   activeGroupId = currentFilter.group ? parseInt(currentFilter.group) : null;
   renderAll();
   if (activeGroupId) {

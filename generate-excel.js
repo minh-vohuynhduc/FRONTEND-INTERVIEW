@@ -435,11 +435,11 @@ overviewRows.push(['', '', '', `Total. ${groups.reduce((s, g) => s + g.questions
 
 // Sheet 2. All Q&A
 const qaRows = [
-  ['Group', 'Group Name', 'Level', 'Question', 'Key Points to Evaluate (Mindset and Reasoning)', 'Red Flags to Watch For']
+  ['Group', 'Group Name', 'Level', 'Question', 'Key Points to Evaluate (Mindset and Reasoning)', 'Red Flags to Watch For', 'Figma Link']
 ];
 groups.forEach(g => {
   g.questions.forEach(q => {
-    qaRows.push([g.id, g.name, g.level, q.q, q.k, q.r]);
+    qaRows.push([g.id, g.name, g.level, q.q, q.k, q.r, q.f || '']);
   });
 });
 
