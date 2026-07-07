@@ -207,6 +207,11 @@
     background: #fef3c7; color: #92400e; border-radius: 10px;
     font-weight: 600; align-self: flex-start; margin-top: 3px;
   }
+  .q-figma-badge {
+    flex-shrink: 0; font-size: 10px; padding: 2px 7px;
+    background: #ede9fe; color: #7c3aed; border-radius: 10px;
+    font-weight: 600; align-self: flex-start; margin-top: 3px;
+  }
   .q-delete-btn {
     flex-shrink: 0; width: 22px; height: 22px;
     border: none; background: transparent; cursor: pointer;
@@ -241,6 +246,21 @@
   .q-block.key .q-block-label { color: var(--green); }
   .q-block.red { background: var(--red-bg); border-left: 3px solid var(--red); }
   .q-block.red .q-block-label { color: var(--red); }
+  .q-block.why { background: #eef3fb; border-left: 3px solid var(--primary); }
+  .q-block.why .q-block-label { color: var(--primary); }
+  .q-block.why .q-block-edit-btn { border: 1px solid var(--primary); color: var(--primary); }
+  .q-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .q-block-header .q-block-label { margin-bottom: 0; }
+  .q-block-edit-btn { font-size: 10px; padding: 1px 8px; border-radius: 4px; background: transparent; cursor: pointer; opacity: 0; transition: opacity .15s; font-weight: 600; white-space: nowrap; }
+  .q-block:hover .q-block-edit-btn { opacity: 1; }
+  .q-block.key .q-block-edit-btn { border: 1px solid var(--green); color: var(--green); }
+  .q-block.red .q-block-edit-btn { border: 1px solid var(--red); color: var(--red); }
+  .q-block-text { line-height: 1.6; }
+  .q-block-textarea { display: none; width: 100%; min-height: 80px; padding: 6px 8px; border-radius: 4px; font-size: 12.5px; font-family: inherit; line-height: 1.6; resize: vertical; outline: none; background: #fff; }
+  .q-block-textarea.active { display: block; }
+  .q-block.key .q-block-textarea { border: 1px solid var(--green); }
+  .q-block.red .q-block-textarea { border: 1px solid var(--red); }
+  .q-block.edited .q-block-label::after { content: ' ✎'; font-size: 10px; opacity: 0.5; }
   .q-block.figma { background: #f0f4ff; border-left: 3px solid #7c3aed; }
   .q-block.figma .q-block-label { color: #7c3aed; }
   .figma-display { display: flex; align-items: center; gap: 8px; min-height: 26px; }
@@ -253,8 +273,6 @@
   .figma-input-wrap { display: none; gap: 6px; align-items: center; }
   .figma-input-wrap.active { display: flex; }
   .figma-input-wrap input { flex: 1; padding: 5px 10px; border: 1px solid #7c3aed; border-radius: 6px; font-size: 12.5px; font-family: inherit; outline: none; background: #fff; color: var(--text); }
-  .figma-open-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; background: #7c3aed; color: #fff; font-size: 13px; text-decoration: none; flex-shrink: 0; }
-  .figma-open-btn:hover { background: #6d28d9; }
 
   /* ── ADD QUESTION MODAL ── */
   .modal-overlay {
@@ -356,6 +374,10 @@
   <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
     <input type="checkbox" id="showHighlighted" onchange="applyFilters()">
     <span>Highlighted only</span>
+  </label>
+  <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+    <input type="checkbox" id="showFigma" onchange="applyFilters()">
+    <span>Has Figma</span>
   </label>
 </div>
 
@@ -550,17 +572,19 @@ const LS_STARS    = 'fib_stars_v2';
 const LS_CUSTOM   = 'fib_custom_v2';
 const LS_HL       = 'fib_hl_v2';
 const LS_FIGMA    = 'fib_figma_v1';
+const LS_EDITS    = 'fib_edits_v1';
 
 let stars      = new Set(JSON.parse(localStorage.getItem(LS_STARS)  || '[]'));
 let highlights = new Set(JSON.parse(localStorage.getItem(LS_HL)    || '[]'));
 let customs    = JSON.parse(localStorage.getItem(LS_CUSTOM) || '{}');
 let figmaLinks = JSON.parse(localStorage.getItem(LS_FIGMA)  || '{}');
-// figmaLinks = { [qid]: url }
+let qEdits     = JSON.parse(localStorage.getItem(LS_EDITS)  || '{}');
+// qEdits     = { [qid]: { k?: string, r?: string } }
 // customs = { [groupId]: [{ q, k, r }] }
 
 let serverAvailable = false;
 
-let currentFilter = { group: '', level: '', search: '', starredOnly: false, highlightedOnly: false };
+let currentFilter = { group: '', level: '', search: '', starredOnly: false, highlightedOnly: false, figmaOnly: false };
 let activeGroupId = null;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -571,11 +595,12 @@ function save() {
   localStorage.setItem(LS_HL,     JSON.stringify([...highlights]));
   localStorage.setItem(LS_CUSTOM, JSON.stringify(customs));
   localStorage.setItem(LS_FIGMA,  JSON.stringify(figmaLinks));
+  localStorage.setItem(LS_EDITS,  JSON.stringify(qEdits));
   if (serverAvailable) {
     fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stars: [...stars], highlights: [...highlights], customs, figmaLinks })
+      body: JSON.stringify({ stars: [...stars], highlights: [...highlights], customs, figmaLinks, qEdits })
     }).catch(() => { serverAvailable = false; });
   }
 }
@@ -665,6 +690,7 @@ function renderMain() {
         if (currentFilter.starredOnly     && !stars.has(q._id))      return false;
         if (currentFilter.highlightedOnly && !highlights.has(q._id)) return false;
       }
+      if (currentFilter.figmaOnly && !figmaLinks[q._id]) return false;
       return matchesFilter(g, q.q);
     });
 
@@ -714,6 +740,7 @@ function buildQCard(q, g) {
         <span class="icon">⭐</span>
       </button>
       <div class="q-text">${escHtml(q.q)}</div>
+      ${figmaLinks[id] ? '<span class="q-figma-badge">Figma</span>' : ''}
       ${q._custom ? '<span class="q-custom-badge">Custom</span>' : ''}
       ${q._custom ? `<button class="q-delete-btn" title="Delete" data-id="${id}" data-gid="${g.id}">✕</button>` : ''}
     </div>
@@ -721,13 +748,29 @@ function buildQCard(q, g) {
       Show answer guide
     </div>
     <div class="q-details" data-id="${id}">
-      <div class="q-block key">
-        <div class="q-block-label">Key Points to Evaluate</div>
-        ${escHtml(q.k || '')}
+      <div class="q-block why${qEdits[id]?.w !== undefined ? ' edited' : ''}">
+        <div class="q-block-header">
+          <div class="q-block-label">Why This Question?</div>
+          <button class="q-block-edit-btn">Edit</button>
+        </div>
+        <div class="q-block-text">${escHtml(qEdits[id]?.w !== undefined ? qEdits[id].w : '')}</div>
+        <textarea class="q-block-textarea" placeholder="Explain why this question reveals useful signal about the candidate...">${escHtml(qEdits[id]?.w !== undefined ? qEdits[id].w : '')}</textarea>
       </div>
-      <div class="q-block red">
-        <div class="q-block-label">Red Flags to Watch For</div>
-        ${escHtml(q.r || '')}
+      <div class="q-block key${qEdits[id]?.k !== undefined ? ' edited' : ''}">
+        <div class="q-block-header">
+          <div class="q-block-label">Key Points to Evaluate</div>
+          <button class="q-block-edit-btn">Edit</button>
+        </div>
+        <div class="q-block-text">${escHtml(qEdits[id]?.k !== undefined ? qEdits[id].k : (q.k || ''))}</div>
+        <textarea class="q-block-textarea" placeholder="Key points to evaluate...">${escHtml(qEdits[id]?.k !== undefined ? qEdits[id].k : (q.k || ''))}</textarea>
+      </div>
+      <div class="q-block red${qEdits[id]?.r !== undefined ? ' edited' : ''}">
+        <div class="q-block-header">
+          <div class="q-block-label">Red Flags to Watch For</div>
+          <button class="q-block-edit-btn">Edit</button>
+        </div>
+        <div class="q-block-text">${escHtml(qEdits[id]?.r !== undefined ? qEdits[id].r : (q.r || ''))}</div>
+        <textarea class="q-block-textarea" placeholder="Red flags to watch for...">${escHtml(qEdits[id]?.r !== undefined ? qEdits[id].r : (q.r || ''))}</textarea>
       </div>
       <div class="q-block figma">
         <div class="q-block-label">Figma Link</div>
@@ -740,7 +783,6 @@ function buildQCard(q, g) {
         </div>
         <div class="figma-input-wrap">
           <input type="url" class="figma-link-input" data-id="${id}" placeholder="https://www.figma.com/file/..." value="${escHtml(figmaLinks[id] || '')}">
-          <a class="figma-open-btn" style="display:none" target="_blank" rel="noopener noreferrer" title="Open in Figma">↗</a>
         </div>
       </div>
     </div>
@@ -756,7 +798,7 @@ function buildQCard(q, g) {
 
   // Highlight row on card click (not on buttons)
   card.addEventListener('click', e => {
-    if (e.target.closest('.star-btn') || e.target.closest('.q-toggle') || e.target.closest('.q-delete-btn') || e.target.closest('.figma-input-wrap')) return;
+    if (e.target.closest('.star-btn') || e.target.closest('.q-toggle') || e.target.closest('.q-delete-btn') || e.target.closest('.figma-input-wrap') || e.target.closest('.figma-display')) return;
     if (highlights.has(id)) { highlights.delete(id); } else { highlights.add(id); }
     save();
     renderAll();
@@ -774,17 +816,74 @@ function buildQCard(q, g) {
   });
 
   // Figma link — display/edit toggle
-  const figmaDisplay  = card.querySelector('.figma-display');
+  const figmaDisplay   = card.querySelector('.figma-display');
   const figmaInputWrap = card.querySelector('.figma-input-wrap');
-  const figmaInput    = card.querySelector('.figma-link-input');
-  const figmaOpenBtn  = card.querySelector('.figma-open-btn');
+  const figmaInput     = card.querySelector('.figma-link-input');
+
+  // Block ALL clicks inside the figma block from bubbling to card
+  card.querySelector('.q-block.figma').addEventListener('click', e => e.stopPropagation());
+
+  // Editable key/red blocks
+  function setupBlockEdit(blockEl, field) {
+    const textEl     = blockEl.querySelector('.q-block-text');
+    const textareaEl = blockEl.querySelector('.q-block-textarea');
+    const editBtn    = blockEl.querySelector('.q-block-edit-btn');
+    const origVal    = (qEdits[id]?.[field] !== undefined) ? qEdits[id][field] : '';
+
+    function enterEdit() {
+      textEl.style.display     = 'none';
+      textareaEl.classList.add('active');
+      editBtn.style.opacity    = '1';
+      editBtn.textContent      = 'Reset';
+      textareaEl.focus();
+    }
+
+    function exitEdit(doSave) {
+      if (doSave) {
+        const val = textareaEl.value.trim();
+        if (!qEdits[id]) qEdits[id] = {};
+        // Store even if same as original — marks as intentionally edited
+        qEdits[id][field] = val;
+        textEl.textContent = val;
+        blockEl.classList.add('edited');
+        save();
+      } else {
+        // Reset to original question value
+        if (qEdits[id]) delete qEdits[id][field];
+        if (qEdits[id] && Object.keys(qEdits[id]).length === 0) delete qEdits[id];
+        save();
+        renderAll();
+        return;
+      }
+      textareaEl.classList.remove('active');
+      textEl.style.display  = '';
+      editBtn.textContent   = 'Edit';
+      editBtn.style.opacity = '';
+    }
+
+    editBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (textareaEl.classList.contains('active')) { exitEdit(false); }
+      else { enterEdit(); }
+    });
+    textareaEl.addEventListener('click',  e => e.stopPropagation());
+    textareaEl.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); exitEdit(false); }
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); exitEdit(true); }
+    });
+    textareaEl.addEventListener('blur', () => { if (textareaEl.classList.contains('active')) exitEdit(true); });
+    blockEl.addEventListener('click', e => e.stopPropagation());
+  }
+
+  setupBlockEdit(card.querySelector('.q-block.why'), 'w');
+  setupBlockEdit(card.querySelector('.q-block.key'), 'k');
+  setupBlockEdit(card.querySelector('.q-block.red'), 'r');
 
   function enterFigmaEdit() {
-    figmaDisplay.style.display  = 'none';
+    figmaDisplay.style.display = 'none';
     figmaInputWrap.classList.add('active');
     figmaInput.focus();
     figmaInput.select();
-    if (figmaInput.value) { figmaOpenBtn.href = figmaInput.value; figmaOpenBtn.style.display = 'inline-flex'; }
   }
 
   function exitFigmaEdit(save_) {
@@ -815,10 +914,6 @@ function buildQCard(q, g) {
       if (e.key === 'Escape') { e.preventDefault(); exitFigmaEdit(false); }
     });
     figmaInput.addEventListener('blur', () => exitFigmaEdit(true));
-    figmaInput.addEventListener('input', () => {
-      if (figmaInput.value) { figmaOpenBtn.href = figmaInput.value; figmaOpenBtn.style.display = 'inline-flex'; }
-      else { figmaOpenBtn.style.display = 'none'; }
-    });
   }
 
   const addBtn  = card.querySelector('.figma-add-btn');
@@ -861,11 +956,12 @@ function renderAll() {
 // FILTERS
 // ─────────────────────────────────────────────────────────────────────────────
 function applyFilters() {
-  currentFilter.group         = document.getElementById('filterGroup').value;
-  currentFilter.level          = document.getElementById('filterLevel').value;
-  currentFilter.search         = document.getElementById('filterSearch').value.trim();
-  currentFilter.starredOnly    = document.getElementById('showStarred').checked;
+  currentFilter.group          = document.getElementById('filterGroup').value;
+  currentFilter.level           = document.getElementById('filterLevel').value;
+  currentFilter.search          = document.getElementById('filterSearch').value.trim();
+  currentFilter.starredOnly     = document.getElementById('showStarred').checked;
   currentFilter.highlightedOnly = document.getElementById('showHighlighted').checked;
+  currentFilter.figmaOnly       = document.getElementById('showFigma').checked;
   activeGroupId = currentFilter.group ? parseInt(currentFilter.group) : null;
   renderAll();
   if (activeGroupId) {
@@ -1023,6 +1119,8 @@ async function syncGenerator() {
     }
     stars      = new Set(data.stars      || []);
     highlights = new Set(data.highlights || []);
+    figmaLinks = data.figmaLinks || {};
+    qEdits     = data.qEdits     || {};
     customs    = {};
     (data.groups || []).forEach(g => { if (g.customs && g.customs.length) customs[g.id] = g.customs; });
 

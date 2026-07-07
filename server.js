@@ -36,7 +36,7 @@ app.use(express.static(__dirname));
 // In-memory state
 // ─────────────────────────────────────────────────────────────────────────────
 let groups = [];  // [{ id, name, level, questions:[{q,k,r}], customs:[{q,k,r}] }]
-let appState = { stars: [], highlights: [], customs: {}, figmaLinks: {} };
+let appState = { stars: [], highlights: [], customs: {}, figmaLinks: {}, qEdits: {} };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LOAD from xlsx
@@ -79,6 +79,12 @@ async function loadFromXlsx() {
     if (!qGroupCounters[gid]) qGroupCounters[gid] = 0;
     const qId = `g${gid}_q${qGroupCounters[gid]++}`;
     if (figma) appState.figmaLinks[qId] = figma;
+    const why = String(row.getCell(8).value || '').trim();
+    if (why) {
+      if (!appState.qEdits) appState.qEdits = {};
+      if (!appState.qEdits[qId]) appState.qEdits[qId] = {};
+      appState.qEdits[qId].w = why;
+    }
     groupMap.get(gid).questions.push({ q, k, r });
   });
 
@@ -147,12 +153,16 @@ async function saveToXlsx() {
   if (!headerRow.getCell(7).value) {
     const HDR_FONT = { size: 10, bold: true, color: { argb: 'FFFFFFFF' }, name: 'Calibri' };
     const HDR_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1A3A5C' } };
-    const hdrCell = headerRow.getCell(7);
-    hdrCell.value     = 'Figma Link';
-    hdrCell.font      = HDR_FONT;
-    hdrCell.fill      = HDR_FILL;
-    hdrCell.alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
-    hdrCell.border    = BORDER;
+    ['Figma Link', 'Why This Question?'].forEach((label, i) => {
+      const cell = headerRow.getCell(7 + i);
+      if (!cell.value) {
+        cell.value     = label;
+        cell.font      = HDR_FONT;
+        cell.fill      = HDR_FILL;
+        cell.alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+        cell.border    = BORDER;
+      }
+    });
   }
 
   // Re-add all rows with correct fills
@@ -165,7 +175,8 @@ async function saveToXlsx() {
       const qId = `g${g.id}_q${idx}`;
       const fill = appState.highlights.includes(qId) ? YELLOW : NONE;
       const figmaUrl = (appState.figmaLinks || {})[qId] || '';
-      const row  = qaSheet.addRow([g.id, g.name, g.level, q.q, q.k, q.r, figmaUrl]);
+      const whyText  = (appState.qEdits    || {})[qId]?.w || '';
+      const row  = qaSheet.addRow([g.id, g.name, g.level, q.q, q.k, q.r, figmaUrl, whyText]);
       row.height = 80;
       row.eachCell({ includeEmpty: true }, cell => {
         cell.fill      = fill;
@@ -198,18 +209,20 @@ app.get('/api/data', (_req, res) => {
     })),
     stars:      appState.stars,
     highlights: appState.highlights,
-    figmaLinks: appState.figmaLinks || {}
+    figmaLinks: appState.figmaLinks || {},
+    qEdits:     appState.qEdits     || {}
   });
 });
 
 // POST /api/save — receive full state from browser, persist to xlsx
 app.post('/api/save', async (req, res) => {
   try {
-    const { stars, highlights, customs, figmaLinks } = req.body;
+    const { stars, highlights, customs, figmaLinks, qEdits } = req.body;
     appState.stars      = Array.isArray(stars)      ? stars      : [];
     appState.highlights = Array.isArray(highlights) ? highlights : [];
-    appState.customs    = (customs && typeof customs === 'object') ? customs : {};
+    appState.customs    = (customs    && typeof customs    === 'object') ? customs    : {};
     appState.figmaLinks = (figmaLinks && typeof figmaLinks === 'object') ? figmaLinks : {};
+    appState.qEdits     = (qEdits     && typeof qEdits     === 'object') ? qEdits     : {};
 
     // Update in-memory groups customs
     groups.forEach(g => {
